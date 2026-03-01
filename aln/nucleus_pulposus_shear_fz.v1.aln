@@ -1,0 +1,115 @@
+aln schema tissue.nucleus_pulposus.shear_fz.v1
+
+header
+  ecosafety_hex   0xNPFZ-2026-03-01-PHX-ALN-01
+  authordid_primary  bostrom18sd2ujv24ual9c9pshtxys6j8knh6xaead9ye7
+  authordid_alt      bostrom1ldgmtf20d6604a24ztr0jxht7xt7az4jhkmsrc
+  tissue_region      "lumbar_np_l4_l5"
+  species            "human"
+  source_refs        "RES127;RES130;RES148;RES150;RES186;RES133-title"
+  version_tag        "NucleusPulposusShearFZ.v1"
+
+particle np_shear_fz_sample
+  sample_id              string
+  cohort_id              string
+  subject_age_years      f64
+  subject_sex            string          # "M","F","X","unknown"
+  degeneration_grade     string          # Pfirrmann or similar, free text
+  species                string          # override if needed
+  region_label           string          # e.g. "lumbar_np_l4_l5"
+  posture_label          string          # "supine","prone","unknown"
+
+  hydration_frac_wet     f64             # e.g. 0.78
+  hydration_sd_wet       f64             # e.g. 0.03
+  osmotic_pressure_mpa   f64             # -1 if not reported
+  pg_content_mg_ml       f64             # proteoglycan; -1 if missing
+  collagen_fraction      f64             # mass or volume fraction, -1 if missing
+
+  test_mode              string          # "shear"
+  temp_celsius           f64
+  prestrain_lambda       f64             # stretch ratio λ
+  frequency_min_hz       f64
+  frequency_max_hz       f64
+  frequency_ref_hz       f64             # e.g. 1.0
+  method_tag             string          # "torsional_shear","DMA","AFM_shear"
+  method_caveat          string          # e.g. "AFM vs macro shear discrepancy"
+
+  # Fractional Zener parameters fitted at this hydration
+  g0_pa                  f64
+  ginf_pa                f64
+  alpha_fz               f64             # fractional order
+  tau1_s                 f64
+  tau2_s                 f64
+  fit_r2                 f64
+  fit_rmse_pa            f64
+  validity_band_note     string          # e.g. "valid 0.1–10 Hz"
+
+  # Representative spectral values at frequency_ref_hz
+  gprime_ref_pa          f64
+  gdoubleprime_ref_pa    f64
+  tan_delta_ref          f64            # = gdoubleprime_ref_pa / gprime_ref_pa
+
+  # Derived design ranges for controllers (conservative)
+  k_design_min_pa        f64            # lower bound shear stiffness at freq_ref
+  d_design_min_pas       f64            # lower bound damping proxy at freq_ref
+  e_max_j_per_m3         f64            # safe shear energy density corridor cap
+
+  # Normalized risk coordinates for this sample (optional but recommended)
+  r_gprime_soft          f64            # 0–1
+  r_gprime_rigid         f64            # 0–1
+  r_lossfactor           f64            # 0–1
+  r_hydration_low        f64            # 0–1; dehydration risk
+  r_metadata_gap         f64            # 0–1; missing/uncertain fields
+
+  # Lyapunov-style residual for this NP state
+  v_disc_residual        f64
+
+  # K/E/R scores at this evidence state
+  knowledge_factor       f64
+  eco_impact_value       f64
+  risk_of_harm           f64
+
+  # Traceability
+  source_paper_id        string          # DOI or internal RESxxx tag
+  source_table_figure    string          # e.g. "Table 2; Fig.4b"
+  notes                  string          # free-text comments
+
+contract corridor_present np_shear_fz_sample s -> bool
+  # Required fields must be finite; hydration and FZ params must exist.
+  return
+    s.hydration_frac_wet     >= 0.0 &
+    s.g0_pa                  >  0.0 &
+    s.ginf_pa                >= 0.0 &
+    s.alpha_fz               >  0.0 &
+    s.tau1_s                 >  0.0 &
+    s.frequency_ref_hz       >  0.0 &
+    s.gprime_ref_pa          >  0.0 &
+    s.v_disc_residual        >= 0.0 &
+    s.knowledge_factor       >= 0.0 &
+    s.eco_impact_value       >= 0.0 &
+    s.risk_of_harm           >= 0.0
+
+particle np_shear_fz_corridors
+  region_label           string
+  hydration_min_wet      f64        # safe hydration lower band
+  hydration_max_wet      f64        # safe hydration upper band
+  gprime_soft_safe_max   f64        # Pa
+  gprime_rigid_safe_min  f64        # Pa
+  tan_delta_min          f64
+  tan_delta_max          f64
+  e_max_safe_j_per_m3    f64
+  w_r_gprime_soft        f64
+  w_r_gprime_rigid       f64
+  w_r_lossfactor         f64
+  w_r_hydration_low      f64
+  w_r_metadata_gap       f64
+
+contract safe_step_np np_shear_fz_sample prev, np_shear_fz_sample next,
+                      np_shear_fz_corridors c -> bool
+  # Outside safe interior, Lyapunov-style residual must not increase.
+  let ok_h =
+    next.hydration_frac_wet >= c.hydration_min_wet &
+    next.hydration_frac_wet <= c.hydration_max_wet
+  let ok_v =
+    next.v_disc_residual <= prev.v_disc_residual
+  return ok_h & ok_v
