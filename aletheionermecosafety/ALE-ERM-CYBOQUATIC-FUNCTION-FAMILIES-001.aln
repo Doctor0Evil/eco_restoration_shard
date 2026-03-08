@@ -1,0 +1,89 @@
+title   = "ALE-ERM-CYBOQUATIC-FUNCTION-FAMILIES-001"
+version = "2026-03-08"
+region  = "Phoenix-AZ-US"
+
+[globals]
+seven_capitals = [
+  "Water","Thermal","Waste","Biotic",
+  "Neurobiome","Somatic","Treaty"
+]
+
+############################################################
+# 1A. Canonical cyboquatic function families
+############################################################
+
+[family.neighborhoodwatersystemstate]
+description = "Neighborhood water + MAR + canal + SAT state"
+capitals    = ["Water","Thermal","Waste","Biotic","Treaty"]
+smart_chains = ["SMART01_AWP_THERMAL_THERMAPHORA","SMART03_MAR_CEIM"]
+state_struct = "NeighborhoodWaterSystemState"
+service_fns  = ["neighborhoodwatersystemstate"]
+governance_fns = ["neighborhoodwaterallocationplan"]
+
+[family.canalmachineryautopilot]
+description = "Canal reach pumps/valves under surcharge + habitat corridors"
+capitals    = ["Water","Thermal","Biotic","Treaty","Somatic"]
+smart_chains = ["SMART01_AWP_THERMAL_THERMAPHORA","SMART04_CANAL_BIOTIC_TREATY"]
+state_struct  = "CanalSegmentState"
+service_fns   = ["canalmachineryautopilot"]
+governance_fns = ["ALE-INF-CANAL-TREATY-001.aln"]
+
+[family.canalstormwatercorridorframe]
+description = "Non-actuating monsoon / storm offload corridor scoring"
+capitals    = ["Water","Waste","Biotic","Treaty"]
+smart_chains = ["SMART05_STORM_SAT_SAFETY"]
+state_struct  = "CanalStormCorridorState"
+service_fns   = ["canalstormwatercorridorframe"]
+governance_fns = ["ALE-INF-CANAL-TREATY-001.aln"]
+
+[family.cyboquaticpumpcontrol]
+description = "Local pump / turbine envelope enforcement under rx + Vt"
+capitals    = ["Water","Thermal","Waste","Somatic"]
+smart_chains = ["SMART01_AWP_THERMAL_THERMAPHORA"]
+state_struct  = "CyboquaticPumpState"
+service_fns   = ["cyboquaticpumpcontrol"]
+governance_fns = ["neighborhoodmicrotreatygate"]
+
+[family.waterallocationservice]
+description = "Neighborhood-level water allocation MAR/canal/reuse"
+capitals    = ["Water","Thermal","Treaty","Somatic"]
+smart_chains = [
+  "SMART01_AWP_THERMAL_THERMAPHORA",
+  "SMART03_MAR_CEIM",
+  "SMART07_EQUITY_FLOWS"
+]
+state_struct  = "NeighborhoodWaterSystemState"
+service_fns   = ["waterallocationservice"]
+governance_fns = ["neighborhoodwaterallocationplan"]
+
+[family.cyboquaticfogrouter]
+description = "FOG-style routing of analytic/control workloads to safe nodes"
+capitals    = ["Water","Waste","Biotic","Thermal","Treaty"]
+smart_chains = ["SMART06_FOG_FLOWVAC","SMART01_AWP_THERMAL_THERMAPHORA"]
+state_struct  = "FogCorridorState"
+service_fns   = ["cyboquaticfogrouter"]
+governance_fns = ["FogRouterGovernanceGate"]
+
+############################################################
+# 1B. Universal requirements per family
+############################################################
+
+[requirements.state_struct]
+must_carry_corridor_table = true
+corridor_table_schema = [
+  "varid", "units", "safe", "gold",
+  "hard", "w", "lyap_channel", "mandatory"
+]
+
+[requirements.service_tier]
+must_build_riskvector = true
+riskvector_capitals   = [
+  "Water","Thermal","Waste","Biotic",
+  "Neurobiome","Somatic","Treaty"
+]
+must_call = ["corridor_present","normalize_rx","compute_Vt","safe_step"]
+
+[requirements.governance_tier]
+must_require_smart_chain_ids = true
+must_cover_all_capitals      = true
+fail_if_missing_treaty_or_rights = true
