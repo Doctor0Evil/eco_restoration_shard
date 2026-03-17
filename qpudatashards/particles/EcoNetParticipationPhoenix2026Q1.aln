@@ -1,0 +1,51 @@
+TITLE EcoNetParticipationPhoenix2026Q1
+DESTINATION qpudatashardsparticlesEcoNetParticipationPhoenix2026Q1.aln
+VERSION 1.0.0
+
+aln EcoNetParticipationPhoenix2026Q1
+
+header
+  field shard_type        string   -- EcoNetParticipationPhoenix2026Q1
+  field region            string   -- Phoenix-AZ-US
+  field quarter           string   -- 2026-Q1
+  field timestamputc      string
+  field did_issuer        string
+  field did_signature_hex string
+end
+
+table participation
+  field stakeholder_id        string  -- Bostrom / ALN / DID
+  field repo_count            u32     -- eco-beneficial repos
+  field eligibility_flag      bool    -- meets ≥300 criterion
+  field validations_count     u64     -- shards validated this quarter
+  field cpu_seconds_used      f64
+  field ram_gb_seconds_used   f64
+  field net_mb_transferred    f64
+  field ecoimpact_score01     f64     -- CEIM-normalized
+  field karma_delta           f64     -- ledger increment
+  field knowledge_factor01    f64
+  field risk_of_harm01        f64
+end
+
+predicate eligibility_rule(p participation)
+  requires p.repo_count >= 300
+  requires p.eligibility_flag = true
+end
+
+predicate eco_wealth_rule(p participation)
+  requires p.ecoimpact_score01 >= 0.90
+  requires p.knowledge_factor01 >= 0.90
+  requires p.risk_of_harm01    <= 0.13
+end
+
+predicate settlement_consistency
+  forall p in participation =>
+    (p.eligibility_flag = true -> eligibility_rule(p)) &&
+    (p.karma_delta > 0.0       -> eco_wealth_rule(p))
+end
+
+invariant invariant.participation_phoenix_q1
+  header.region   = "Phoenix-AZ-US"
+  header.quarter  = "2026-Q1"
+  settlement_consistency
+end
