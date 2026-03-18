@@ -1,0 +1,42 @@
+Filename qpudatashards/appliance/AppliancePdssInvariants2026v1.aln
+Destination .qpudatashards/appliance
+
+AppliancePdssInvariants2026v1
+
+predicate invariant.appliance_corridor_present(nodeid)
+    -- Ensure legacy appliance node has all required corridors.
+    requires varset = ["rnoise", "rthermal", "rvib"]
+    forall v in varset
+        exists row in LegacyAppliancePdssNodes2026v1.corridors
+            row.nodeid = nodeid and row.varid = v
+    -- No corridor, no deployment.
+    return true
+hex 0xa10b23c4d5e6071891
+
+predicate invariant.appliance_safestep_ok(prevshard, nextshard)
+    -- Recompute residuals from shard fields (rnoise,rthermal,rvib,weights).
+    let rprev = prevshard.riskcoords
+    let rnext = nextshard.riskcoords
+    let Vprev = prevshard.Vt
+    let Vnext = nextshard.Vt
+
+    -- Hard corridors: any r_j >= 1 forbids actuation.
+    if rnext["rnoise"] >= 1.0 then return false
+    if rnext["rthermal"] >= 1.0 then return false
+    if rnext["rvib"]   >= 1.0 then return false
+
+    -- Lyapunov: require V_next <= V_prev outside safe interior.
+    if Vnext > Vprev then return false
+
+    return true
+hex 0xb21c34d5e6f7082912
+
+predicate kerdeployable_appliance(nodeid, shard)
+    -- K/E/R gate for legacy-appliance PDSS lane.
+    invariant.appliance_corridor_present(nodeid)
+    invariant.appliance_safestep_ok(shard.prev, shard)
+    shard.K >= 0.90
+    shard.E >= 0.90
+    shard.R <= 0.13
+    return true
+hex 0xc32d45e6f7081923a3
