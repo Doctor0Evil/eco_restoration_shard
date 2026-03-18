@@ -1,49 +1,46 @@
-use serde::{Deserialize, Serialize};
-use crate::risk::RiskCoord;
+// File: econet-material-cybo/src/lib.rs
 
-pub mod risk {
-    pub use cyboquatic_ecosafety_core::RiskCoord;
-}
+#![forbid(unsafe_code)]
 
-/// Material properties measured under Phoenix-class conditions.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+use cyboquatic_ecosafety_core::{CorridorBands, KerTriad, KerWindow, RiskCoord, RiskVector};
+use std::fmt;
+
+#[derive(Clone, Copy, Debug)]
 pub struct MaterialKinetics {
-    pub t90_days: f64,      // time for 90% mass loss
-    pub r_tox: f64,         // normalized toxicity 0–1
-    pub r_micro: f64,       // micro-residue risk 0–1
-    pub r_leach_cec: f64,   // CEC leachate risk 0–1
-    pub r_pfas_resid: f64,  // PFAS residue risk 0–1
-    pub caloric_density: f64, // kJ/g to prevent baiting
+    pub t90_days: f64,
+    pub r_tox: f64,
+    pub r_micro: f64,
+    pub r_leach_cec: f64,
+    pub r_pfas_resid: f64,
+    pub caloric_density_mj_per_kg: f64,
 }
 
-/// Hard-coded Phoenix corridors; in production loaded from qpudatashards.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug)]
 pub struct MaterialCorridors {
-    pub t90_max_days_hard: f64,
+    pub t90_max_days: f64,
     pub t90_gold_days: f64,
     pub r_tox_gold_max: f64,
     pub r_micro_max: f64,
-    pub r_leach_cec_max: f64,
-    pub r_pfas_resid_max: f64,
+    pub r_leach_max: f64,
+    pub r_pfas_max: f64,
     pub caloric_density_max: f64,
 }
 
 impl Default for MaterialCorridors {
     fn default() -> Self {
         MaterialCorridors {
-            t90_max_days_hard: 180.0,
+            t90_max_days: 180.0,
             t90_gold_days: 120.0,
             r_tox_gold_max: 0.10,
             r_micro_max: 0.05,
-            r_leach_cec_max: 0.10,
-            r_pfas_resid_max: 0.10,
+            r_leach_max: 0.10,
+            r_pfas_max: 0.10,
             caloric_density_max: 0.30,
         }
     }
 }
 
-/// Normalized material risk coordinates.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug)]
 pub struct MaterialRisks {
     pub r_t90: RiskCoord,
     pub r_tox: RiskCoord,
@@ -54,19 +51,17 @@ pub struct MaterialRisks {
 
 impl MaterialRisks {
     pub fn from_kinetics(k: &MaterialKinetics, c: &MaterialCorridors) -> Self {
-        let r_t90 = if k.t90_days <= c.t90_gold_days {
-            RiskCoord(0.0)
-        } else if k.t90_days >= c.t90_max_days_hard {
-            RiskCoord(1.0)
-        } else {
-            let t = (k.t90_days - c.t90_gold_days)
-                / (c.t90_max_days_hard - c.t90_gold_days).max(1e-12);
-            RiskCoord::clamped(0.5 * t)
+        let t_corr = CorridorBands {
+            x_safe: 0.0,
+            x_gold: c.t90_gold_days,
+            x_hard: c.t90_max_days,
         };
-        let r_tox = RiskCoord::clamped(k.r_tox / c.r_tox_gold_max.max(1e-12));
-        let r_micro = RiskCoord::clamped(k.r_micro / c.r_micro_max.max(1e-12));
-        let r_leach_cec = RiskCoord::clamped(k.r_leach_cec / c.r_leach_cec_max.max(1e-12));
-        let r_pfas_resid = RiskCoord::clamped(k.r_pfas_resid / c.r_pfas_resid_max.max(1e-12));
+        let r_t90 = t_corr.normalize(k.t90_days);
+
+        let r_tox = RiskCoord::new_clamped(k.r_tox / c.r_tox_gold_max);
+        let r_micro = RiskCoord::new_clamped(k.r_micro / c.r_micro_max);
+        let r_leach_cec = RiskCoord::new_clamped(k.r_leach_cec / c.r_leach_max);
+        let r_pfas_resid = RiskCoord::new_clamped(k.r_pfas_resid / c.r_pfas_max);
 
         MaterialRisks {
             r_t90,
@@ -77,33 +72,65 @@ impl MaterialRisks {
         }
     }
 
-    /// Composite materials plane risk r_materials.
-    pub fn r_materials(&self, w_t90: f64, w_tox: f64, w_micro: f64,
-                       w_leach: f64, w_pfas: f64) -> RiskCoord {
-        let num = w_t90 * self.r_t90.0
-            + w_tox * self.r_tox.0
-            + w_micro * self.r_micro.0
-            + w_leach * self.r_leach_cec.0
-            + w_pfas * self.r_pfas_resid.0;
-        let den = (w_t90 + w_tox + w_micro + w_leach + w_pfas).max(1e-12);
-        RiskCoord::clamped(num / den)
+    pub fn to_vector(&self) -> RiskVector {
+        RiskVector {
+            coords: vec![
+                self.r_t90,
+                self.r_tox,
+                self.r_micro,
+                self.r_leach_cec,
+                self.r_pfas_resid,
+            ],
+        }
+    }
+
+    pub fn ecoimpact_score(&self, weights: &[f64; 5]) -> f64 {
+        let risks = [
+            self.r_t90.value(),
+            self.r_tox.value(),
+            self.r_micro.value(),
+            self.r_leach_cec.value(),
+            self.r_pfas_resid.value(),
+        ];
+        let mut s = 0.0;
+        let mut wsum = 0.0;
+        for (r, w) in risks.iter().zip(weights.iter()) {
+            let w = w.max(0.0);
+            s += w * r;
+            wsum += w;
+        }
+        if wsum == 0.0 {
+            1.0
+        } else {
+            let r_bar = s / wsum;
+            (1.0 - r_bar).max(0.0)
+        }
+    }
+
+    pub fn ker(&self, weights: &[f64; 5]) -> KerTriad {
+        let mut win = KerWindow::new();
+        let rv = self.to_vector();
+        let e = self.ecoimpact_score(weights);
+        let max_r = rv.max().value();
+        let lyapunov_safe = true;
+        win.update_step(lyapunov_safe, &rv);
+        let mut triad = win.finalize();
+        triad.e_ecoimpact = e;
+        triad.r_risk_of_harm = max_r;
+        triad
     }
 }
 
-/// Trait every deployable Cyboquatic substrate must satisfy.
+/// Biodegradable, node-compatible substrate traits.
+
 pub trait AntSafeSubstrate {
     fn kinetics(&self) -> &MaterialKinetics;
     fn corridors(&self) -> &MaterialCorridors;
 
-    fn risks(&self) -> MaterialRisks {
-        MaterialRisks::from_kinetics(self.kinetics(), self.corridors())
-    }
-
-    /// Hard gate: all corridors must hold; otherwise this material is non-deployable.
     fn corridor_ok(&self) -> bool {
         let k = self.kinetics();
         let c = self.corridors();
-        if k.t90_days > c.t90_max_days_hard {
+        if k.t90_days > c.t90_max_days {
             return false;
         }
         if k.r_tox > c.r_tox_gold_max {
@@ -112,28 +139,79 @@ pub trait AntSafeSubstrate {
         if k.r_micro > c.r_micro_max {
             return false;
         }
-        if k.r_leach_cec > c.r_leach_cec_max {
+        if k.r_leach_cec > c.r_leach_max {
             return false;
         }
-        if k.r_pfas_resid > c.r_pfas_resid_max {
+        if k.r_pfas_resid > c.r_pfas_max {
             return false;
         }
-        if k.caloric_density > c.caloric_density_max {
+        if k.caloric_density_mj_per_kg > c.caloric_density_max {
             return false;
         }
         true
     }
 }
 
-/// Trait ensuring substrate does not conflict with node treatment goals.
-pub trait CyboNodeCompatible {
-    fn introduces_pfas(&self) -> bool;
-    fn introduces_nutrients(&self) -> bool;
-    fn introduces_pathogens(&self) -> bool;
+pub trait CyboNodeCompatible: AntSafeSubstrate {
+    fn introduces_pfas_mass(&self) -> bool;
+    fn introduces_nutrient_mass(&self) -> bool;
 
     fn node_compatible(&self) -> bool {
-        !(self.introduces_pfas()
-            || self.introduces_nutrients()
-            || self.introduces_pathogens())
+        self.corridor_ok()
+            && !self.introduces_pfas_mass()
+            && !self.introduces_nutrient_mass()
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct SubstrateSpec {
+    pub id: String,
+    pub kinetics: MaterialKinetics,
+    pub corridors: MaterialCorridors,
+    pub pfas_back_leach: bool,
+    pub nutrient_back_leach: bool,
+}
+
+impl AntSafeSubstrate for SubstrateSpec {
+    fn kinetics(&self) -> &MaterialKinetics {
+        &self.kinetics
+    }
+    fn corridors(&self) -> &MaterialCorridors {
+        &self.corridors
+    }
+}
+
+impl CyboNodeCompatible for SubstrateSpec {
+    fn introduces_pfas_mass(&self) -> bool {
+        self.pfas_back_leach
+    }
+    fn introduces_nutrient_mass(&self) -> bool {
+        self.nutrient_back_leach
+    }
+}
+
+impl SubstrateSpec {
+    pub fn risks(&self) -> MaterialRisks {
+        MaterialRisks::from_kinetics(&self.kinetics, &self.corridors)
+    }
+
+    pub fn ker(&self, weights: &[f64; 5]) -> KerTriad {
+        self.risks().ker(weights)
+    }
+
+    pub fn deployment_allowed(&self, weights: &[f64; 5]) -> bool {
+        if !self.node_compatible() {
+            return false;
+        }
+        let ker = self.ker(weights);
+        ker.k_knowledge >= 0.90 && ker.e_ecoimpact >= 0.90 && ker.r_risk_of_harm <= 0.13
+    }
+}
+
+impl fmt::Display for SubstrateSpec {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let w = [0.2, 0.2, 0.2, 0.2, 0.2];
+        let ker = self.ker(&w);
+        write!(f, "Substrate {} {}", self.id, ker)
     }
 }
