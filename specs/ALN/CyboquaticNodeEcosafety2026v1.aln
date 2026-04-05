@@ -1,0 +1,36 @@
+# File: specs/ALN/CyboquaticNodeEcosafety2026v1.aln
+
+Shard CyboquaticNodeEcosafety2026v1 {
+  node_id: String
+  geo_lat: F64
+  geo_lon: F64
+  medium: Enum { Water, Wetland, Canal, AirGlobe }
+
+  # Raw physical metrics (examples)
+  q_m3s: F64
+  head_m: F64
+  net_co2eq_kg_cycle: F64
+  habitat_index: F64
+
+  # Normalized risk planes (rx)
+  r_energy: F64  # 0–1
+  r_hydraulics: F64
+  r_biology: F64
+  r_carbon: F64
+  r_materials: F64
+  r_biodiversity: F64
+
+  # Lyapunov residual and KER
+  vt: F64
+  k_knowledge: F64
+  e_eco_impact: F64
+  r_risk_of_harm: F64
+
+  lane: Enum { RESEARCH, EXP_PROD, PROD }
+  ker_deployable: Bool
+
+  # Hex evidence and authorship
+  evidence_hex: Hex
+  author_did: String
+  corridor_version: String
+}
