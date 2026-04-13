@@ -1,0 +1,116 @@
+spec EnergyBankModuleEcosafety2026 v1.0.0
+  purpose  Ecosafety shard for energy-bank modules attached to Cyboquatic nodes,
+           with energy, carbon, materials, uncertainty, and ingest-quality
+           planes wired into the standard rx–Vt–KER spine.
+  requires EcoNetSchemaShard2026 v1.0.0
+  requires CyboquaticEcosafetyCoreV2
+  requires invariant kerdeployable v2.0.0
+
+  shardschema
+    path qpudatashards/phoenix/EnergyBankModuleEcosafety2026v1.csv
+    role EcosafetyNodeEnergyBank
+    fields
+      nodeid               -- string, unique Cyboquatic node identifier
+      moduleid             -- string, unique energy-bank module identifier
+      region               -- string, region/basin id e.g. Phoenix-AZ
+      timestamp            -- ISO 8601 UTC observation window
+      technology           -- string, energy-bank technology class
+      capacity_kwh         -- float, installed energy capacity
+      state_of_charge      -- float, 0-1 fraction at window start
+      cycles_count         -- int, equivalent full cycles since commissioning
+      ambient_temp_c       -- float, degrees C
+      throughput_kwh_window-- float, energy throughput over window
+      roundtrip_efficiency -- float, 0-1 round-trip efficiency
+
+      renergy              -- RiskCoord, energy-plane risk
+      rcarbon_energy       -- RiskCoord, carbon-intensity risk for module
+      rmaterials_battery   -- RiskCoord, materials-plane composite risk
+      rsigma_energy        -- RiskCoord, uncertainty risk for telemetry
+      rcalib               -- RiskCoord, ingest/schema quality risk
+
+      vt                   -- Residual, Lyapunov residual including wcalib rcalib^2
+      kscore               -- float, window-level K
+      escore               -- float, window-level E
+      rscore               -- float, window-level R
+      dtsensor             -- float, sensor trust scalar from rsigma
+      dtdata               -- float, 1.0 - rcalib
+      kadj                 -- float, K * dtsensor * dtdata
+      eadj                 -- float, E * dtsensor * dtdata
+
+      deploydecision       -- string, Deploy|ResearchOnly|BlockedByCalib|BlockedByRisk|BlockedByKER
+      lane                 -- string, RESEARCH|PRODUCTION
+      evidencehex          -- hex64, evidence bundle hash
+      signinghex           -- hex64, Bostrom-aligned signing identity
+
+  corridors
+    renergy
+      units      dimensionless
+      safemin    0.0
+      safemax    0.10
+      goldmin    0.10
+      goldmax    0.13
+      hardmin    0.13
+      hardmax    1.00
+      lyapweight 1.0
+      channel    energy
+      mandatory  true
+
+    rcarbon_energy
+      units      dimensionless
+      safemin    0.0
+      safemax    0.08
+      goldmin    0.08
+      goldmax    0.13
+      hardmin    0.13
+      hardmax    1.00
+      lyapweight 1.3
+      channel    carbon
+      mandatory  true
+
+    rmaterials_battery
+      units      dimensionless
+      safemin    0.0
+      safemax    0.10
+      goldmin    0.10
+      goldmax    0.13
+      hardmin    0.13
+      hardmax    1.00
+      lyapweight 1.1
+      channel    materials
+      mandatory  true
+
+    rsigma_energy
+      units      dimensionless
+      safemin    0.0
+      safemax    0.10
+      goldmin    0.10
+      goldmax    0.30
+      hardmin    0.30
+      hardmax    1.00
+      lyapweight 0.9
+      channel    dataquality
+      mandatory  true
+
+    rcalib
+      units      dimensionless
+      safemin    0.0
+      safemax    0.00
+      goldmin    0.00
+      goldmax    0.04
+      hardmin    0.13
+      hardmax    1.00
+      lyapweight 0.8
+      channel    dataquality
+      mandatory  true
+      note       Ingest/schema quality enters Vt and can independently block deploy.
+
+  writepolicy
+    -- Only Rust/C writers using EcoNetSchemaShard2026v1 may emit this shard.
+    gate1_schema_from   EcoNetSchemaShard2026v1
+    gate2_rcalib_gold   rcalib <= 0.04
+    gate3_ker_production
+      kmin  0.90
+      emin  0.90
+      rmax  0.13
+
+end
