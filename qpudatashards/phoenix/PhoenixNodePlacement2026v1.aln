@@ -1,0 +1,56 @@
+# qpudatashards/phoenix/PhoenixNodePlacement2026v1.aln
+spec PhoenixNodePlacement2026 v1.0.0
+purpose "Canonical node-placement shard for Phoenix canal ecosafety."
+
+schema csv
+  encoding "utf-8"
+  format   "rfc4180"
+
+fields
+  node_id                  string   mandatory
+  placement_timestamp_utc  datetime mandatory
+  lat                      decimal  mandatory
+  lon                      decimal  mandatory
+  reach_id                 string   mandatory
+
+  r_SAT                    float    mandatory
+  r_DO                     float    mandatory
+  r_Flow                   float    mandatory
+  r_Nutrient               float    mandatory
+  r_Ecoli                  float    mandatory
+  r_PFAS                   float    mandatory
+  r_calib                  float    mandatory
+
+  Vt_local                 float    mandatory
+  Vt_network               float    mandatory
+
+  is_corridor_present      bool     mandatory
+  is_safestep_compliant    bool     mandatory
+
+  deploydecision           enum{Continue,Derate,Withdraw} mandatory
+
+  downstream_ids           string   optional  # semicolon-separated IDs
+  downstream_sensitivity   string   optional  # matching semicolon-separated weights
+
+  evidencehex              string   mandatory
+  signinghex               string   mandatory
+end_fields
+
+invariants
+  invariant corridorpresent:
+    require_columns
+      r_SAT, r_DO, r_Flow, r_Nutrient, r_Ecoli, r_PFAS, r_calib
+      Vt_local, Vt_network
+      evidencehex, signinghex
+    on_fail set is_corridor_present = false
+
+  invariant safestep:
+    kind lyapunov
+    expression "Vt_network_next <= Vt_network"
+    guard "max_risk <= 0.13"
+    on_fail set is_safestep_compliant = false
+
+  invariant deploy_gate:
+    condition "is_corridor_present == true && is_safestep_compliant == true"
+    on_false set deploydecision = "Withdraw"
+end_invariants
