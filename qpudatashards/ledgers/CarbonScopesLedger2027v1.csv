@@ -1,11 +1,11 @@
-﻿Column,Description,Example Value
+Column,Description,Example Value
 ledger_id,Unique identifier for the carbon accounting entry,CSL-2027-PHX-00842
 scope1_kgco2e,Direct emissions from onsite fuel combustion or process releases,12.4
 scope2_kgco2e,Indirect emissions from purchased electricity/heat (gridgco2kwhnode),45.8
 scope3_upstream_kgco2e,"Embodied carbon of materials, manufacturing, transport",230.1
 scope3_downstream_kgco2e,"End-of-life processing, avoided emissions from services",-150.3
 ecoimpactadj_kgco2e,"Adjustment for verified ecological co-benefits (e.g., PFAS removal)",-22.5
-rcarbonscope1/2/3,"Normalized risk coordinates (0–1) per scope, corridor-gated",0.18", "0.34", "0.29
+rcarbonscope1/2/3,"Normalized risk coordinates (0–1) per scope, corridor-gated","0.18, 0.34, 0.29"
 allocation_rule_id,Foreign key to EcoCoreParameters rule preventing double-counting,ALLOC-PHX-SHARED-INFRA-V1
 avoided_emissions_kgco2e,Verified carbon reductions from CEIM mass-avoidance kernels,89.2
 net_carbon_balance_kgco2e,scope_total + ecoimpactadj + avoided_emissions,115.7
