@@ -1,0 +1,41 @@
+alnversion 1.0
+schema econet.telemetry.invasive_pathogen.v1
+
+# This shard captures biological monitoring data for invasive species,
+# pathogens, and antibiotic resistance genes (ARGs). It feeds directly into
+# the rbiology plane (rinvasive, rpathogen, rARG) of the ecosafety grammar.
+
+required_columns
+sample_id              string    # Unique sample identifier
+node_id                string    # ID of Cyboquatic node or control site
+lat                    decimal   # Sampling location latitude
+lon                    decimal   # Sampling location longitude
+reach_id               string    # Canal reach ID
+sample_timestamp_utc   datetime  # ISO 8601 UTC sample collection time
+sample_type            string    # water, sediment, biofilm, etc.
+analysis_method        string    # eDNA_metabarcoding, qPCR, metagenomics, ddPCR, etc.
+target_taxon           string    # Scientific name of target organism (or "not detected")
+target_gene            string    # Genetic marker (e.g., COI, stx1, sul1)
+concentration_copies_per_L float # Measured concentration (copies/L) or zero if below detection
+detection_limit_copies_per_L float # Method detection limit
+rinvasive              float     # Normalized invasive species risk (0‑1+)
+rpathogen              float     # Normalized pathogen risk
+rARG                   float     # Normalized antimicrobial resistance gene risk
+quality_flag           boolean   # True if sample passed quality control
+evidencehex            string    # Hash of raw data file
+signinghex             string    # Digital signature
+end_required_columns
+
+validation_rules
+rule "rinvasive between 0.0 and 1.0 (or >1 if hard edge exceeded)"
+rule "rpathogen between 0.0 and 1.0"
+rule "rARG between 0.0 and 1.0"
+rule "concentration_copies_per_L >= 0"
+rule "detection_limit_copies_per_L > 0"
+rule "sample_type in [water, sediment, biofilm, plant_tissue]"
+end_validation_rules
+
+# Integration: The rbiology plane uses these coordinates to compute V_biology.
+# If rinvasive, rpathogen, or rARG exceed corridor hard edges (r>1),
+# the deploydecision for any node in that reach must derate or withdraw.
+# Nodes in PROD lane are prohibited if replay shows increasing trends in these risks.
