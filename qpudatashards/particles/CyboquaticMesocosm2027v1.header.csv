@@ -1,0 +1,1 @@
+mesocosm_id,experiment_name,reach_id,lat,lon,start_date_utc,end_date_utc,flow_regime_lps,substrate_type,dosing_schedule_id,r_biodiversity,r_ARG,r_trap,r_tox_aquatic,r_micro,V_aquatic,V_soil,K,E,R,lane,corridor_present_flag,deploy_decision,evidencehex,signinghex
