@@ -1,0 +1,1 @@
+sample_id,node_id,lat,lon,reach_id,sample_timestamp_utc,sample_type,analysis_method,target_taxon,target_gene,concentration_copies_per_L,detection_limit_copies_per_L,rinvasive,rpathogen,rARG,quality_flag,evidencehex,signinghex
