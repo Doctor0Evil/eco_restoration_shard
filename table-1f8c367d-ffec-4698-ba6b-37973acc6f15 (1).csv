@@ -1,0 +1,12 @@
+﻿Column,Description,Example Value
+rec_id,Unique identifier for the renewable energy certificate entry,REL-2027-PHX-01593
+kwh_renewable_generated,"kWh from co-sited PV, hydro, or other renewables (gridgco2kwhnode ≈ 0)",127.4
+kwh_renewable_consumed_purification,"Portion of renewable kWh used for eco-services (pumps, sensors)",89.2
+kwh_grid_imported,kWh drawn from external grid with nonzero carbon intensity,15.3
+scope2_avoided_kgco2e,Calculated as (kwh_grid_imported * grid_intensity) - (kwh_renewable * 0),6.8
+rcarbonenergy,Normalized lifecycle carbon intensity coordinate (0–1),0.22
+renergytailwind,Boolean flag: true when PV surplus exceeds local demand,true
+vt_before / vt_after,Lyapunov residual before and after the energy transaction,0.142", "0.138
+delta_vt,vt_after - vt_before; must be ≤ 0 for safestep approval,-0.004
+credit_eligible,Computed field: true only if rcarbonenergy < safe_band AND delta_vt ≤ 0 AND lane=PROD,true
+credit_amount_kwh,Net renewable kWh eligible for REC issuance after losses and verification,73.9
