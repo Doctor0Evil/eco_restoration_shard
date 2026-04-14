@@ -1,0 +1,1 @@
+observation_id,observer_did,lat,lon,grid_cell,timestamp_utc,observation_type,observed_value,category_code,photo_hash,quality_score,trust_scalar,evidencehex,signinghex
