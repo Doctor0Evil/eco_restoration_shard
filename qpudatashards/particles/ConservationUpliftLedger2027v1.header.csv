@@ -1,0 +1,1 @@
+uplift_id,basin_id,asset_id,bond_issuance_id,reporting_period_start,reporting_period_end,baseline_period_start,baseline_period_end,metric_name,metric_unit,baseline_value,current_value,absolute_change,percent_change,avoided_kg_PFAS,avoided_kg_N,avoided_kg_P,recharge_m3,evaporation_avoided_m3,rcarbon_avoided,K,E,R,lane,verified_flag,evidencehex,signinghex
