@@ -1,0 +1,75 @@
+### qpudatashards/particles/canal_goldband_excursion_logic.aln
+alnversion 1.0
+schema phoenix.canal.ecosafety.goldband.v1
+
+required_risk_coordinates
+  r_SAT
+  r_DO
+  r_Flow
+  r_Nutrient
+  r_Ecoli
+  r_PFAS
+  r_calib
+end_required_risk_coordinates
+
+corridor_table
+  # varid, units, safe, gold, hard, weight, channel
+  r_SAT      "°C"        0.0 0.3 1.0  1.0 "hydraulics"
+  r_DO       "mg/L"      0.0 0.3 1.0  1.3 "biology"
+  r_Flow     "m3/s"      0.0 0.3 1.0  0.8 "hydraulics"
+  r_Nutrient "mg/L"      0.0 0.3 1.0  1.2 "biology"
+  r_Ecoli    "MPN/100mL" 0.0 0.3 1.0  1.4 "biology"
+  r_PFAS     "ng/L"      0.0 0.3 1.0  1.5 "toxic"
+  r_calib    "-"         0.0 0.1 1.0  0.8 "dataquality"
+end_corridor_table
+
+corridorpresent_rule
+  require_columns
+    r_SAT r_DO r_Flow r_Nutrient r_Ecoli r_PFAS r_calib
+    Vt_local Vt_network
+    evidencehex signinghex
+  on_missing set is_corridor_present = false
+end_corridorpresent_rule
+
+safestep_rule
+  residual_name  "Vt_network"
+  residual_type  "squared"
+  definition     "Vt = Σ w_i r_i^2 over required coordinates"
+  vt_ceiling     0.13
+  condition_outside_safe_interior
+    "max(r_SAT,r_DO,r_Flow,r_Nutrient,r_Ecoli,r_PFAS,r_calib) > 0.05"
+  enforce
+    "Vt_next <= Vt_current"
+  on_violation_modes "Derate","Withdraw"
+end_safestep_rule
+
+excursion_kernel
+  # sustained violation: r_x > 1 for ≥ 2.5 × tau_rec
+  sustained_factor 2.5
+  vt_window_hours  72.0
+  predicates
+    "true_excursion_sustained    => deploydecision in {Derate,Withdraw}"
+    "true_excursion_vt_monotone  => deploydecision in {Derate,Withdraw}"
+    "true_excursion_harm_signature => deploydecision = Withdraw"
+end_excursion_kernel
+
+deploydecision_kernel
+  inputs  K_raw E_raw R_raw r_calib
+  condition
+    "K_raw >= 0.93 && E_raw >= 0.90 && R_raw <= 0.13 && r_calib <= 0.13"
+  on_false_action "reject_deploy"
+  on_true_action  "allow_deploy"
+end_deploydecision_kernel
+
+audit_fields
+  shard_field node_id
+  shard_field reach_id
+  shard_field lat
+  shard_field lon
+  shard_field Vt_network
+  shard_field is_corridor_present
+  shard_field is_safestep_compliant
+  shard_field deploydecision
+  shard_field evidencehex
+  shard_field signinghex
+end_audit_fields
