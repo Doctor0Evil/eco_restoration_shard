@@ -1,0 +1,92 @@
+# DeployDecisionGrammar2026v1.aln
+# Governs the final deployment decision, including DID signing and shard sealing.
+
+family: DeployDecision
+version: 2.0.0
+description: "Final deploy decision with Bostrom DID anchoring"
+
+columns:
+  - varid: "decision_id"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Hash of this decision (evidencehex of decision shard)"
+
+  - varid: "node_placement_hash"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Reference to validated NodePlacement shard"
+
+  - varid: "decision"
+    coltype: EnumDeployDecision
+    mandatory: true
+    description: "DEPLOY | DEPLOY_EXPERIMENT | DERATE | STOP | REJECT"
+
+  - varid: "lane"
+    coltype: EnumLane
+    mandatory: true
+    description: "Lane in which this decision was made"
+
+  - varid: "ker_k"
+    coltype: Float01
+    mandatory: true
+    description: "Knowledge factor at decision time"
+
+  - varid: "ker_e"
+    coltype: Float01
+    mandatory: true
+    description: "Eco-impact factor at decision time"
+
+  - varid: "ker_r"
+    coltype: Float01
+    mandatory: true
+    description: "Risk-of-harm residual at decision time"
+
+  - varid: "vt"
+    coltype: Float01
+    mandatory: true
+    description: "Lyapunov residual V_t at decision time"
+
+  - varid: "did"
+    coltype: Utf8Id128
+    mandatory: true
+    description: "Bostrom DID of the signing authority"
+
+  - varid: "signinghex"
+    coltype: Hex64Signature
+    mandatory: true
+    description: "Ed25519 signature over evidencehex using DID private key"
+
+  - varid: "timestamp"
+    coltype: UnixMillis
+    mandatory: true
+    description: "When decision was finalized"
+
+  - varid: "evidencehex"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Hash of all mutable fields in canonical order"
+
+family: BostromAnchor
+version: 1.0.0
+description: "On-chain anchoring of deployment decisions via Bostrom"
+
+columns:
+  - varid: "tx_hash"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Bostrom transaction hash containing the decision"
+
+  - varid: "block_height"
+    coltype: Uint64
+    mandatory: true
+    description: "Block number where decision was recorded"
+
+  - varid: "decision_hash"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Reference to DeployDecision.evidencehex"
+
+  - varid: "validator_set"
+    coltype: Utf8Csv
+    mandatory: true
+    description: "Comma-separated list of validator DIDs that signed off"
