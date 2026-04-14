@@ -1,0 +1,118 @@
+# SafeStepGrammar2026v1.aln
+# Defines the SafeStepGate contract and Pilot-Gate deployment invariants.
+# All physical actuation must flow through gates defined herein.
+
+family: SafeStepContract
+version: 2.0.0
+description: "SafeStepGate invariants for ecosafety actuation"
+
+columns:
+  - varid: "gate_id"
+    coltype: Utf8Id64
+    mandatory: true
+    description: "Unique identifier for this gate instance"
+
+  - varid: "corridorpresent"
+    coltype: BoolFlag
+    mandatory: true
+    description: "True iff all required corridor bands are defined and validated"
+
+  - varid: "residualsafe"
+    coltype: BoolFlag
+    mandatory: true
+    description: "True iff V_t <= V_max and U_t <= U_max (dual residual)"
+
+  - varid: "kerdeployable"
+    coltype: BoolFlag
+    mandatory: true
+    description: "True iff KER scores meet lane-specific thresholds"
+
+  - varid: "routevariant"
+    coltype: EnumRouteVariant
+    mandatory: true
+    description: "DEPLOY | DERATE | STOP | OBSERVE"
+
+  - varid: "v_max"
+    coltype: Float01
+    mandatory: true
+    description: "Maximum allowed V_t for deployment (e.g., 0.3)"
+
+  - varid: "u_max"
+    coltype: Float01
+    mandatory: true
+    description: "Maximum allowed U_t (uncertainty residual) for deployment"
+
+  - varid: "v_trend_window"
+    coltype: Uint32
+    mandatory: true
+    description: "Number of samples to check for V_t non-increase"
+
+  - varid: "v_trend_threshold"
+    coltype: Float01
+    mandatory: true
+    description: "Maximum allowed positive delta in V_t over window"
+
+family: PilotGateRules
+version: 2.0.0
+description: "Lane-specific thresholds for promotion through pilot gates"
+
+columns:
+  - varid: "lane"
+    coltype: EnumLane
+    mandatory: true
+    description: "RESEARCH(0) | PILOT(1) | PROD(2)"
+
+  - varid: "min_ker_k"
+    coltype: Float01
+    mandatory: true
+    description: "Minimum Knowledge factor"
+
+  - varid: "min_ker_e"
+    coltype: Float01
+    mandatory: true
+    description: "Minimum Eco-impact factor"
+
+  - varid: "max_ker_r"
+    coltype: Float01
+    mandatory: true
+    description: "Maximum Risk-of-harm"
+
+  - varid: "max_vt"
+    coltype: Float01
+    mandatory: true
+    description: "Maximum allowed Lyapunov residual"
+
+  - varid: "observation_days"
+    coltype: Uint32
+    mandatory: true
+    description: "Minimum days in current lane before promotion eligibility"
+
+  - varid: "required_shards"
+    coltype: Uint32
+    mandatory: true
+    description: "Minimum number of valid shards in observation period"
+
+rows:
+  - lane: "RESEARCH"
+    min_ker_k: 0.0
+    min_ker_e: 0.0
+    max_ker_r: 1.0
+    max_vt: 0.8
+    observation_days: 1
+    required_shards: 10
+
+  - lane: "PILOT"
+    min_ker_k: 0.80
+    min_ker_e: 0.75
+    max_ker_r: 0.20
+    max_vt: 0.5
+    observation_days: 30
+    required_shards: 1000
+
+  - lane: "PROD"
+    min_ker_k: 0.90
+    min_ker_e: 0.90
+    max_ker_r: 0.13
+    max_vt: 0.3
+    observation_days: 90
+    required_shards: 10000
