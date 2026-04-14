@@ -1,0 +1,39 @@
+schema CarbonScopesLedger2027v1 {
+    string  ledger_id;
+    string  node_id;
+    string  basin_id;
+    string  regionid;
+    datetime reporting_period_start;
+    datetime reporting_period_end;
+    
+    # Scope emissions (kg CO₂e)
+    float64 scope1_kgco2e;
+    float64 scope2_kgco2e;
+    float64 scope3_upstream_kgco2e;
+    float64 scope3_downstream_kgco2e;
+    float64 scope_total_kgco2e;
+    
+    # Eco-impact adjustments and avoided emissions
+    float64 ecoimpactadj_kgco2e;
+    float64 avoided_emissions_kgco2e;
+    float64 net_carbon_balance_kgco2e;
+    
+    # Normalized risk coordinates (0–1)
+    float32 rcarbonscope1;
+    float32 rcarbonscope2;
+    float32 rcarbonscope3;
+    
+    # KER scoring and governance
+    float32 k_factor;
+    float32 e_factor;
+    float32 r_factor;
+    string  corridorids;  # comma-separated list
+    bool    ker_deployable;
+    string  lane;  # "EXP", "PROD", "QUAR"
+    
+    # Allocation and verification
+    string  allocation_rule_id;
+    string  evidence_hex;
+    string  signing_hex;
+    string  validator_did;
+}
