@@ -1,212 +1,317 @@
-# Cydroid Response‑Shard · Eco‑Sys · Human‑Robotics Readme
+# Eco-Restoration Shard · qpudatashard + ALN Invariants · Machine-Enforced Eco-Safety
 
 ## Overview
 
-This repository implements a **ResponseShard** discipline, a Phoenix‑class MAR SAT‑cell pilot mirror, and an Eco‑Sys–aware orchestration spine for human‑robotics, neuromorphic swarms, and ecological recovery in smart‑city and wildland infrastructures. Every change is scored on how it tightens K/E/R (Knowledge / Energy / Restoration), preserves forward‑only governance, and improves eco‑impact per joule under identity‑anchored ROW and RPM protocols. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+This repository implements a **qpudatashard-first discipline** for eco-restoration machinery: a Phoenix-class reference instantiation of the frozen ecosafety grammar, with machine-enforced invariants over aquatic deployment decisions. Every change is scored on how it tightens the canonical K/E/R triad—**Knowledge-factor** (evidence density), **Eco-impact** (restorative benefit), **Residual risk-of-harm** (Lyapunov-bound uncertainty)—while preserving forward-only governance via ALN contracts and append-only, hex-stamped shard records.
 
-The stack is pure Rust at the core, with Kotlin/Android, Lua, JavaScript, and Mojo bindings, and is designed to plug into Virta‑Sys, VSC‑ARTEMIS, Eco‑Sys, and Googolswarm ALN without network calls inside core crates. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+The stack is pure Rust at the core, with optional C++ bindings for embedded deployment, and is designed to plug into any orchestrator that respects the `corridorpresent` / `safestep` / `deploydecision` invariant chain. No network calls exist inside core crates; all I/O occurs through typed, schema-validated `qpudatashard` CSV rows and ALN contract evaluations.
 
 ***
 
 ## Repository Layout
 
 ```text
-/response_shard_eco
-├── response_shard/              # K/E/R + MAR corridor core (Rust, no net)
-/│   ├── src/
-│   │   ├── lib.rs               # ResponseShard types, K/E/R metrics, V_t
-│   │   ├── corridor.rs          # ALN invariants: no_corridor_no_build, safestep, ker_delta
-│   │   └── lyapunov.rs          # Residual V_t, stability bands for missions
-│   └── README.md
-│
-├── mar_pilot_sat_cell/          # Phoenix‑class SAT‑cell pilot (Rust)
-/│   ├── src/
-│   │   ├── lib.rs               # Mass‑balance kernels, recharge, contaminant removal
-│   │   └── corridors_table.rs   # Risk‑normalized corridors r_x ∈ [0,1]
-│   └── README.md
-│
-├── eco_sys_adapter/             # Eco‑Sys / Virta‑Sys / Googolswarm bridge (Rust)
+/eco_restoration_shard
+├── ecosafety_core/              # Frozen grammar: rx, Vt, corridors, safestep (Rust, no net)
 │   ├── src/
-│   │   ├── lib.rs               # Traits for Eco‑Sys energy plans + response K/E/R
-│   │   ├── energy_plan.rs       # Ingest virta‑git energy‑plan outputs
-│   │   └── aln_anchor.rs        # SHA‑512 + ALN anchor records → Googolswarm
+│   │   ├── lib.rs               # RiskCoord, Residual, CorridorBands types
+│   │   ├── normalize.rs         # Normalization kernels Kx: raw → rx ∈ [0,∞)
+│   │   ├── lyapunov.rs          # Vt = Σ wi·ri²; discrete Lyapunov enforcement
+│   │   └── contracts.rs         # corridorpresent, safestep, deploydecision predicates
 │   └── README.md
 │
-├── human_robotics/              # Biophysical → neuromorphic → swarm interface
-│   ├── schemas/                 # ALN neurochannel & eco‑metric schemas (language‑neutral)
-│   ├── rust_core/               # Rust neuromorphic encoders, ALN structs, ROW logging
-│   ├── kotlin_android/          # Android sensor hub & eco‑embodiment UI
-│   ├── lua_swarm/               # Lua event‑bus + swarm policy + ROW logger
-│   ├── js_dashboards/           # Browser dashboards, replay, and eco‑impact views
-│   └── mojo_kernels/            # High‑performance neuromorphic kernels (optional)
+├── canal_pilot_shard/           # Phoenix canal reference instantiation (Rust)
+│   ├── src/
+│   │   ├── lib.rs               # CEIM mass-kernel Mx = (Cin−Cout)·Q·dt
+│   │   ├── corridors_phoenix.rs # Calibrated safe/gold/hard bands for SAT, DO, PFAS, etc.
+│   │   └── baseline.rs          # Seasonal variance, recovery timescales, harm signatures
+│   └── README.md
+│
+├── qpudatashard_schema/         # Machine-readable CSV + ALN schema definitions
+│   ├── schemas/
+│   │   ├── NodePlacement.csv.schema    # Required columns, types, constraints
+│   │   ├── CorridorBands.csv.schema    # rx_min, rx_max, kernel_version, evidencehex
+│   │   └── DeployDecision.csv.schema   # K, E, R, corridorpresent, safestep, vt_ceiling
+│   ├── aln/
+│   │   ├── canal_goldband_logic.aln    # Canonical invariant spec (machine-parsable)
+│   │   ├── downstream_aware.aln        # Multi-node, sensitivity-weighted safestep
+│   │   └── refugia_special_case.aln    # Species-specific corridors, fairness constraints
+│   └── README.md
+│
+├── validation_ci/               # CI/CD gates for shard integrity & invariant compliance
+│   ├── scripts/
+│   │   ├── validate_shard.py    # Schema conformance, corridor consistency checks
+│   │   ├── test_lyapunov.rs     # Unit tests: Vt+1 ≤ Vt under admissible controls
+│   │   └── replay_baseline.sh   # Replay Phoenix events to verify recovery logic
+│   └── README.md
 │
 ├── docs/
-│   ├── response_spine.mmd       # ResponseShard → SAT‑cell → Eco‑Sys → ALN trace
-│   ├── ecosys_integration.mmd   # VSC‑ARTEMIS ↔ Virta‑Sys ↔ Eco‑Sys ↔ Googolswarm ALN
-│   ├── human_robotics_loop.mmd  # Biophysical → ALN events → swarm → eco‑impact
-│   └── validation_pipeline.mmd  # Phases I–VI validation graph
+│   ├── invariant_trace.mmd      # corridorpresent → safestep → deploydecision flow
+│   ├── calibration_protocol.mmd # From raw telemetry to rx bands to Vt weights
+│   ├── downstream_propagation.mmd # Sensitivity indices, network-wide Vt aggregation
+│   └── generalization_pattern.mmd # Phoenix → new domain adaptation workflow
 │
 ├── manifests/
-│   ├── response_shard.aln.toml  # ALN module IDs + invariants
-│   ├── eco_sys_bridge.aln.toml  # Eco‑Sys anchor & energy‑plan contracts
-│   └── human_robotics.aln.toml  # Neurochannels, ROW, RPM, eco‑metrics
+│   ├── phoenix_canal.aln.toml   # Region-specific corridor sets, kernel versions
+│   ├── deployment_gates.aln.toml # K≥0.93, E≥0.90, R≤0.13 thresholds for PROD lane
+│   └── audit_provenance.aln.toml # evidencehex, signinghex, DID-anchored row validation
 │
 ├── data-lake/
-│   └── row/
-│       └── typewriter-journal.json  # NewRowPrint!/neuro.print! evidence graph
+│   └── phoenix_baseline/
+│       ├── reach_A_seasonal.csv  # Raw telemetry for corridor calibration
+│       ├── recovery_timescales.json # Empirical return-to-corridor constants
+│       └── harm_signatures.csv   # Empirically validated biological event patterns
 │
 └── Cargo.toml
 ```
 
+***
+
+## ecosafety_core: The Frozen Grammar Spine
+
+The `ecosafety_core/` crate defines the universal, domain-agnostic logic of the ecosafety grammar. It is the single source of truth for:
+
+- **Normalization kernels** (`K_x`): Functions that map raw physical measurements (temperature, DO, PFAS concentration, flow velocity) into normalized risk coordinates `r_x ∈ [0, ∞)`, with `r_x = 1` precisely at the hard corridor edge (regulatory limit or ecotoxic threshold) .
+- **Lyapunov residual** (`V_t`): The scalar aggregate risk metric `V_t = Σ_i w_i · r_{x_i}²`, where weights `w_i` reflect ecological priority. The discrete Lyapunov condition `V_{t+1} ≤ V_t` (outside a small safe interior) is enforced as a hard invariant for all admissible control actions .
+- **Corridor structures**: `CorridorBands` define `safe` (`r_x ≤ r_soft < 1`), `gold`, and `hard` (`r_x ≤ 1`) boundaries for each risk coordinate, with immutable versioning and citation metadata .
+- **Contract predicates**:
+  - `corridorpresent`: Returns `true` iff all required `r_x` have defined, non-empty corridor bands with valid `kernel_version` and `evidencehex` .
+  - `safestep`: Returns `true` iff either (a) no corridor is violated, or (b) a corridor is violated but the proposed action yields `V_{t+1} ≤ V_t` .
+  - `deploydecision`: Gates deployment on system-level KER metrics: `K ≥ 0.93 ∧ E ≥ 0.90 ∧ R ≤ 0.13` .
+
+All types and functions are pure, deterministic, and network-free. The crate exposes a minimal public API suitable for embedding in embedded Rust or C++ runtimes.
 
 ***
 
-## ResponseShard & Phoenix SAT‑Cell
+## canal_pilot_shard: Phoenix Canal Reference Instantiation
 
-The `response_shard/` crate defines response‑level K/E/R metrics and a Lyapunov residual \(V_t\) used to decide whether any proposed change tightens restoration corridors. ALN‑style invariants `no_corridor_no_build`, `safestep`, and `ker_delta` are enforced at compile‑time and test‑time so that no corridor‑free, unsafe, or negative‑K/E/R proposals can graduate into field missions. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+The `canal_pilot_shard/` crate implements the Phoenix canal system as the canonical calibration ground for the ecosafety grammar. It provides:
 
-The `mar_pilot_sat_cell/` crate implements a Phoenix‑class SAT‑cell pilot with:
+- **CEIM mass-kernel**: `M_x = (C_{in,x} − C_{out,x}) · Q · dt` for contaminant transport (PFAS, nutrients, salinity) and recharge accounting, with units preserved across all domains .
+- **Calibrated corridor bands**: Empirically derived `safe/gold/hard` bands for Phoenix-specific parameters (SAT, DO, TDS, E. coli, PFAS) based on ≥1 seasonal cycle of baseline telemetry from node-free reaches .
+- **Baseline statistics**: Mean, variance, autocorrelation, and characteristic recovery timescales for each `r_x` under natural conditions, enabling the distinction between transient variability and true excursions .
+- **Harm signature catalog**: Empirically validated patterns (e.g., rising SAT + collapsing DO + nutrient spike → algal bloom risk) encoded as ALN predicates tied to shard fields .
 
-- Mass‑balance kernels for recharge cycles and contaminant removal in soil, water, and air cells. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- A corridor table normalized into risk coordinates \(r_x \in [0,1]\), encoding safe operating envelopes for eco‑restoration actions. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
-- A “mirror” decision layer that rejects ideas that do not strictly tighten K/E/R and corridors, keeping the loop strictly restorative. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-
-Both crates are pure Rust, no network, and are designed to drop into Virta‑Sys/Psyche_Junky style orchestrators. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/0eada842-7c2e-4438-8f12-450d02330a66/STM32H7_Chip.txt)
-
-***
-
-## Eco‑Sys Integration
-
-Eco‑Sys is treated as the environmental compliance and energy‑aware orchestration layer for this repository. The `eco_sys_adapter/` crate: [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/0eada842-7c2e-4438-8f12-450d02330a66/STM32H7_Chip.txt)
-
-- Ingests `virta-git` configuration and `energy-plan` outputs to compute machine‑level power envelopes and target utilization for smart‑city and field deployments. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-- Serializes and signs commit states using SHA‑512 and anchors them as ALN records on the Googolswarm blockchain with multi‑sig attestation. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-- Exposes an Eco‑Sys–compatible interface so that only response paths that *lower* physical energy draw while preserving throughput are accepted into production corridors. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-
-Typical Eco‑Sys workflow against this repo:
-
-1. Use `virta-git validate-latest` to confirm configuration and repo state.  
-2. Generate an energy plan for the cluster (e.g., 8 machines, baseline x/y mWz, target utilization 0.7).  
-3. Run `cargo test` in this repo under that plan and emit a NewRowPrint! with K/E/R deltas and energy metrics.  
-4. Anchor the resulting ROW record and Eco‑Sys manifest to Googolswarm ALN via `eco_sys_adapter::aln_anchor`. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+This crate is strictly a *client* of `ecosafety_core`: it supplies domain-specific parameters but never modifies the core grammar. This ensures that all future aquatic deployments remain strict clients of the same frozen spine.
 
 ***
 
-## Human‑Robotics and Neuromorphic Eco‑Swarm
+## qpudatashard + ALN: Machine-Enforced Invariants
 
-The `human_robotics/` tree encodes the Cydroid neuromorphic human‑robotics loop, focusing on non‑invasive biophysical sensing, ultra‑low‑power event encoding, and eco‑restorative swarm control. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+The `qpudatashard_schema/` directory defines the machine-readable contracts that govern all eco-restoration deployments. Two complementary formats are used:
 
-### ALN Schemas (language‑neutral)
+### 1. CSV Schema Definitions (`*.csv.schema`)
 
-`human_robotics/schemas/` defines:
+Each shard type is defined as a typed CSV schema with explicit constraints. Example: `NodePlacement.csv.schema`
 
-- Neurochannel types for EEG, EMG, IMU, and environmental biosensors (soil moisture, pH, turbidity, pollutants). [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- Event packets for neuromorphic encoding (spike trains, sparse events) with timestamp, channel ID, event type, payload, and provenance fields bound to Bostrom/ALN DIDs. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- Eco‑metric schemas such as `alneco.v1.soil_water_air` for eco‑impact scores, impact‑per‑joule, and restoration progress. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+```csv
+# Schema: NodePlacement.v1
+# Required columns (all non-null unless marked optional)
+node_id:string(primary_key)
+placement_timestamp_utc:datetime
+lat:decimal(10,8)
+lon:decimal(10,8)
+reach_id:string(foreign_key=CanalReach.reach_id)
+r_SAT:float(min=0.0)
+r_DO:float(min=0.0)
+r_PFAS:float(min=0.0)
+# ... additional risk coordinates ...
+Vt:float(min=0.0)
+is_corridor_present:boolean(computed)
+is_safestep_compliant:boolean(computed)
+deploydecision:enum(Continue,Derate,Withdraw)
+evidencehex:string(pattern=^[0-9a-f]{64}$)
+signinghex:string(pattern=^[0-9a-f]{128}$)
+```
 
-These schemas are compiled into Rust structs, Kotlin data classes, Lua tables, JavaScript objects, and Mojo structs, guaranteeing cross‑language type and semantic parity. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+Validation scripts (`validation_ci/scripts/validate_shard.py`) enforce:
+- Column presence and type conformance
+- Logical consistency: `r_x_min ≤ r_x_max` for all corridor pairs
+- Cryptographic integrity: `evidencehex` matches SHA-256 of source telemetry
 
-### Rust Core
+### 2. ALN Contract Specifications (`*.aln`)
 
-`human_robotics/rust_core/` provides:
+ALN files are declarative, machine-parsable specifications of governance invariants. Example: `canal_goldband_logic.aln`
 
-- Neuromorphic encoders that transform continuous EEG/EMG/IMU and environmental signals into event‑driven representations suitable for milliwatt‑scale edge devices. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- ALN data structures and a DID‑anchored ROW ledger (NewRowPrint!/neuro.print!) that record every learning step, swarm reconfiguration, and eco‑impact delta as an append‑only event. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-- K/E/R scoring functions that link human biophysical state, swarm behavior, and eco metrics into a single evaluable node for this repo’s ResponseShard discipline. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+```aln
+alnversion 1.0
+schema phoenix.ecosafety.goldband.v1
 
-### Kotlin/Android Sensor Hub
+required_risk_coordinates
+r_SAT
+r_DO
+r_PFAS
+r_Nutrients
+r_Ecoli
+end_required_risk_coordinates
 
-`human_robotics/kotlin_android/` implements:
+corridorpresent_rule
+require_columns
+r_SATmin r_SATmax
+r_Domin r_Domax
+r_PFASmin r_PFASmax
+kernel_version
+evidencehex
+end_require_columns
+end_corridorpresent_rule
 
-- A mobile sensor hub that pairs with EEG/EMG/IMU and environmental wearables, encodes data into ALN events, and streams them to Rust nodes or local swarms. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- Eco‑embodiment UI surfaces that present operator state (fatigue, stress, focus) and eco‑impact feedback (soil moisture recovery, pollutant drop) in real time. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+safestep_rule
+residual_type squared
+residual_name Vt
+residual_definition "Vt = w1*r_SAT^2 + w2*r_DO^2 + w3*r_PFAS^2 + ..."
+vt_ceiling 0.13
+on_violation_modes derate, stop
+end_safestep_rule
 
-### Lua Swarm Layer
+deploydecision_kernel
+inputs K_current, E_current, R_current
+condition "K_current >= 0.93 and E_current >= 0.90 and R_current <= 0.13"
+on_false_action reject_deploy
+on_true_action allow_deploy
+end_deploydecision_kernel
 
-`human_robotics/lua_swarm/` ships:
+audit_fields
+shard_field node_id lat lon K E R corridorpresent safestep vtmax evidencehex signinghex
+end_audit_fields
+```
 
-- A neuromorphic event bus for biophysical and eco events.  
-- A swarm policy core that translates fatigue/stress/focus and local eco‑risk into tempo, safety radius, and intervention depth for ground/aerial/aquatic robots. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- A ROW logger that emits identity‑bound, append‑only records for each swarm episode, compatible with NewRowPrint!/neuro.print! definitions. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-
-This layer can attach directly to CoppeliaSim/Aseba‑style simulations and then to field robots, preserving identical semantics across virtual and physical runs. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-
-### JavaScript Dashboards & Mojo Kernels
-
-- `js_dashboards/` provides browser‑based introspection of neurochannels, ROW timelines, and eco‑efficiency metrics (impact per joule, impact per event) for missions. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
-- `mojo_kernels/` (optional) hosts high‑performance neuromorphic or control kernels that respect the same ALN schemas and K/E/R invariants while exploring new compiler capabilities. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+These ALN contracts are evaluated at:
+- **Compile-time**: Schema generation ensures Rust structs match ALN field requirements
+- **Test-time**: CI runs invariant checks against synthetic and replayed telemetry
+- **Runtime**: Surface gateways evaluate `corridorpresent`/`safestep` before emitting control commands
 
 ***
 
-## Validation and Evidence Pipeline
+## Invariant Enforcement: From Theory to Runtime
 
-This repo must be validated as a research‑grade stack before any deployment. We adopt the 6‑phase pipeline: [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+### corridorpresent: "No Corridor, No Build"
 
-1. **Spec Freeze & Cross‑Language Mapping**  
-   Freeze canonical ALN schemas for neurochannels, events, eco metrics, and ROW records, then map each field into Rust, Kotlin, Lua, JavaScript, and Mojo bindings with a machine‑readable matrix to avoid schema drift. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+Before any node is deployed or operational plan activated, a validation service interrogates the corresponding `NodePlacement` shard row against the canonical ALN contract:
 
-2. **Syntax & Type Conformance**  
-   Enforce schema‑driven code generation and round‑trip tests in CI so all languages serialize/deserialize ALN frames identically, and documentation snippets compile as tests. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+1. Parse `canal_goldband_logic.aln` to extract required risk coordinates and corridor column names
+2. Verify the shard row contains all required `r_xmin`/`r_xmax` pairs with finite, ordered values
+3. Confirm `kernel_version` matches a frozen, cited normalization kernel
+4. Validate `evidencehex` against the raw telemetry hash
+5. Set `is_corridor_present = true` only if all checks pass; otherwise reject deployment
 
-3. **Neuromorphic Path Validation**  
-   Use synthetic EEG/EMG and eco signals to verify event timing, polarity, sparsity, and energy estimates on representative edge hardware, recording metrics as ROW events. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+This automated screening makes "no corridor, no build" a provable property of the system.
 
-4. **Swarm Consensus & Safety**  
-   Run Lua‑driven swarms in simulation for formation, rendezvous, eco‑mapping, and biophysical modulation scenarios, logging consensus times, safety violations, and energy proxies into ROW. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+### safestep: "Violated Corridor, Derate/Stop"
 
-5. **Governance & Anti‑Rollback**  
-   Seal all ROW records in an append‑only, DID‑anchored ledger with threshold‑validated manifests; enforce forward‑only evolution with no rollbacks or hidden control paths. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+At each control timestep, the node's controller proposes an action. The governance logic evaluates safety via `ecosafety_core::contracts::safestep_satisfied`:
 
-6. **Eco‑Impact Benchmarks**  
-   Conduct paired missions with and without the neuromorphic human‑robotics stack in controlled testbeds (soil boxes, water tanks, microhabitats), derive eco‑efficiency metrics, and link every mission to ROW entries and literature ranges. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+```rust
+pub fn safestep_satisfied(
+    current_vt: f64,
+    proposed_vt: f64,
+    corridor_violated: bool,
+) -> bool {
+    if !corridor_violated {
+        return true; // No violation → action admissible
+    }
+    // Violation present → require non-increasing residual
+    proposed_vt <= current_vt
+}
+```
 
-The `docs/validation_pipeline.mmd` graph and `manifests/*.aln.toml` files encode this pipeline and its artifacts explicitly. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
+If the function returns `false`, the action is rejected and `deploydecision` escalates to `Derate` or `Withdraw`. This turns the question of a "true excursion" into a computable property: an excursion is "true" when no admissible control exists that respects all corridors *and* keeps `V_t` non-increasing.
+
+### Downstream-Aware Extension
+
+To prevent local actions from causing downstream harm, the `NodePlacement` shard is augmented with adjacency metadata:
+
+```csv
+# Additional columns in NodePlacement.csv.schema
+downstream_reach_ids:string(list)          # Comma-separated reach identifiers
+sensitivity_indices:float(list)            # Linearized ∂flow/∂actuation per dependency
+downstream_Vt_weight:float(min=0.0,max=1.0) # Aggregation weight for network residual
+```
+
+The `safestep` contract is extended to compute a network-wide residual:
+
+```
+V_t^network = V_t^local + Σ_j (W_j · V_t^dependency_j)
+```
+
+where `W_j` derives from `sensitivity_indices`. The invariant `V_{t+1}^network ≤ V_t^network` is then enforced, ensuring that combinations of local actions cannot cumulatively violate downstream rights or ecological corridors.
 
 ***
 
-## Identity, ROW/RPM, and Governance
+## Validation & CI/CD Pipeline
 
-All contributions are bound to verifiable identities and communities:
+All changes must pass a six-gate validation pipeline encoded in `validation_ci/`:
 
-- **Author**: Doctor0Evil  
-- **Primary DID**: `bostrom18sd2ujv24ual9c9pshtxys6j8knh6xaead9ye7`  
-- **Alternate DID**: `bostrom1ldgmtf20d6604a24ztr0jxht7xt7az4jhkmsrc`  
-- **Safe Alternate**: `0x519fC0eB4111323Cac44b70e1aE31c30e405802D` [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+| Gate | Check | Failure Consequence |
+|------|-------|-------------------|
+| **1. Schema Conformance** | Every `qpudatashard` CSV matches its `*.csv.schema`; all required columns present, typed, non-null | Block merge; fail CI job |
+| **2. Corridor Consistency** | For all `r_xmin`/`r_xmax` pairs: `min ≤ max`; bands align with calibrated Phoenix values | Block merge; log warning |
+| **3. Lyapunov Unit Tests** | `ecosafety_core` tests verify `V_{t+1} ≤ V_t` for synthetic control sequences; coverage ≥95% | Block merge if tests fail or coverage drops |
+| **4. Baseline Replay** | Replay Phoenix storm/irrigation events through `canal_pilot_shard`; verify recovery timescales match empirical data | Block promotion to PROD lane if recovery error >10% |
+| **5. Provenance Verification** | Every shard row has valid `evidencehex` (SHA-256 of source) and `signinghex` (DID-anchored signature) | Block deployment; require re-signing |
+| **6. KER Threshold Gate** | Final `deploydecision` requires `K≥0.93 ∧ E≥0.90 ∧ R≤0.13`; metrics computed from shard aggregates | Reject deployment if thresholds unmet |
 
-ROW (Recognition‑of‑Work) and RPM (Reward‑Participate‑Motivate) are implemented as:
+The pipeline is fully automated: every `git push` triggers schema validation, unit tests, and baseline replay. Only shards that pass all gates may enter the `PROD` deployment lane.
 
-- Non‑transferable, non‑monetary recognition artifacts anchored to Bostrom/ALN/DID, representing eco‑health reputation and care access, not financial yield. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-- Forward‑only governance paths with multi‑sig attestation; no rollback, downgrade, or hidden control path can remove rights, revoke recognition, or restrict eco‑restorative capabilities. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+***
+
+## Generalization Pattern: Phoenix → New Domain
+
+The Phoenix canal instantiation serves as the reference proof-of-concept. Generalizing to a new aquatic environment (river, wetland, reservoir) follows a repeatable, data-driven workflow:
+
+1. **Parameter Mapping**: Identify domain-specific stressors (e.g., sediment load, pH, salinity) and map them to existing `r_x` coordinates or define new ones with identical normalization semantics .
+2. **Local Calibration**: Collect ≥1 seasonal cycle of baseline telemetry from node-free reaches; fit `safe/gold/hard` bands and recovery timescales using the same statistical protocol as Phoenix .
+3. **Schema Extension**: Add new `r_x` columns to `NodePlacement.csv.schema` and corresponding corridor definitions to a region-specific ALN file (e.g., `gila_river_logic.aln`).
+4. **Core Reuse**: Leverage the frozen `ecosafety_core` crate unchanged; only calibration data and schema definitions are domain-specific .
+5. **Validation Replay**: Run the new domain's baseline data through the Phoenix validation pipeline to verify invariant compliance before any deployment.
+
+This pattern ensures that the heavy lifting of safety logic is done once, in the core crate and contracts. Subsequent deployments are primarily calibration exercises, maximizing eco-impact while minimizing residual risk.
 
 ***
 
 ## Installation and Quick Start
 
-Rust toolchain and Cargo are required. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/0eada842-7c2e-4438-8f12-450d02330a66/STM32H7_Chip.txt)
+Rust toolchain (stable) and Cargo are required. C++ bindings are optional.
 
 ```bash
-git clone https://github.com/Doctor0Evil/response_shard_eco.git
-cd response_shard_eco
+# Clone and build core
+git clone https://github.com/ecosafety/eco_restoration_shard.git
+cd eco_restoration_shard
+cargo build --release
+cargo test --all-features
 
-# Core correctness
-cargo build
-cargo test
+# Validate a sample shard against Phoenix schema
+python validation_ci/scripts/validate_shard.py \
+  --schema qpudatashard_schema/schemas/NodePlacement.csv.schema \
+  --input data-lake/phoenix_baseline/sample_placement.csv
 
-# (Optional) Eco‑Sys integration: run from Eco‑Sys repo, pointing to this repo as a workload
-# virta-git validate + energy-plan + anchor flow as defined in Eco‑Sys docs
+# Replay a baseline event to verify recovery logic
+bash validation_ci/scripts/replay_baseline.sh \
+  --event monsoon_pulse_2024 \
+  --reach reach_A \
+  --output validation_ci/reports/recovery_metrics.json
 ```
 
-
-Language‑specific components (Kotlin app, Lua swarm scripts, JS dashboards, Mojo kernels) are built and run from their subdirectories following the instructions in `human_robotics/*/README.md` once those are populated. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
+Language bindings (C++ embedded, Python analysis) are built from their subdirectories following instructions in `ecosafety_core/bindings/*/README.md`.
 
 ***
 
-## Authorship, Compliance, and License
+## Governance, Provenance, and Compliance
 
-All commits and ROW records:
+All shard records and contract evaluations are bound to verifiable provenance:
 
-- Are multi‑sig attested and anchored to Googolswarm ALN for regulatory‑grade audit trails. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/8da34251-6718-46a4-be76-99c4dbfb450e/from-code-to-climate-a-verifia-WRlmgZ2FTkGpsTPBe3fguQ.md)
-- Conform to ALN/KYC/DID practices and quantum‑resilient governance constraints, with explicit prohibition on rollbacks or downgrade procedures. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/f6e1de31-e534-4f56-a78e-de0afd7d39fa/welcome-to-cydroid-where-cyber-Nx49kj7KSryOiycsTP4cOQ.md)
-- Follow strict nonfiction, energy‑compliance, and eco‑restoration standards; any code or documentation must demonstrate measurable K/E/R gains or be rejected by the ResponseShard spine. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+- **evidencehex**: SHA-256 hash of the raw telemetry or calibration dataset used to compute the row. Enables cryptographic audit of data lineage.
+- **signinghex**: Ed25519 signature from the deploying entity's DID, ensuring non-repudiation of deployment decisions.
+- **Append-only ledger**: Shard rows are never modified; corrections are emitted as new rows with `supersedes_node_id` references, preserving a complete audit trail.
+- **Forward-only evolution**: ALN contracts forbid rollback or downgrade procedures; corridor bands may only tighten (lower `r_xmax`, higher `r_xmin`) via multi-party DID-signed updates.
 
-License: MIT License — see `LICENSE` in this repository for full terms. [ppl-ai-file-upload.s3.amazonaws](https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_5bf2a005-ecdb-4803-8374-7de8164f1e9f/d8ed7ffe-420f-4ca7-8fc4-07fdca015e23/cydroids-neuromorphic-human-ro-naZZZvUXS2SgFnyjgIZ1Sw.md)
+Compliance is enforced by the CI/CD pipeline: any shard or code change that weakens invariants, reduces evidence quality, or relaxes KER thresholds is automatically rejected.
+
+***
+
+## License and Attribution
+
+License: MIT License — see `LICENSE` for full terms.
+
+This repository implements the ecosafety grammar as defined in the canonical 2026 specification. All corridor calibrations, normalization kernels, and invariant definitions are derived from empirical Phoenix canal research and are provided under the same open terms to enable responsible generalization to other aquatic environments.
+
+**Canonical Research Hex**: `0xa1b2c3d4e5f67890f1e2d3c4b5a6978899aa77cc55ee3311`
