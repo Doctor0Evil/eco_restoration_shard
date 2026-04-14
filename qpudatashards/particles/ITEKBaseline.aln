@@ -1,0 +1,47 @@
+alnversion 1.0
+schema econet.itek.baseline.v1
+
+# This schema encodes Indigenous and Traditional Ecological Knowledge (ITEK)
+# as structured baseline data. Any deployment in a region with an ITEK entry
+# must respect the specified corridor overrides.
+
+required_columns
+itek_id                string    # Unique identifier for this ITEK entry
+tribal_nation          string    # Name of the tribal nation or community
+community_contact      string    # Office or department responsible
+place_ids              string    # Semicolon‑separated list of place IDs (e.g., reach IDs)
+lat                    decimal   # Representative latitude
+lon                    decimal   # Representative longitude
+feature_type           string    # Type of ecological/cultural feature
+species_or_habitat     string    # Specific species or habitat name
+seasonal_pattern       string    # Description of seasonal importance
+reference_flow_m3s     float     # Recommended minimum flow (cubic meters/sec) or null
+no_go_flag             boolean   # True if area is off‑limits to any Cyboquatic nodes
+cultural_significance  string    # Brief description of cultural value
+corridor_override_id   string    # Foreign key to CorridorOverride shard
+r_biodiversity_min     float     # ITEK‑specific corridor minimum for biodiversity risk
+r_biodiversity_max     float     # ITEK‑specific corridor maximum
+r_SAT_min              float     # ITEK‑specific minimum for surface water temperature risk
+r_SAT_max              float     # ITEK‑specific maximum
+r_fragment_aquatic_min float     # ITEK‑specific minimum for aquatic fragmentation risk
+r_fragment_aquatic_max float     # ITEK‑specific maximum
+r_species_min          float     # ITEK‑specific minimum for species‑specific risk
+r_species_max          float     # ITEK‑specific maximum
+evidencehex            string    # Hash of supporting documentation
+signinghex             string    # Digital signature from tribal authority
+end_required_columns
+
+validation_rules
+rule "no_go_flag in [true, false]"
+rule "r_biodiversity_min <= r_biodiversity_max"
+rule "r_SAT_min <= r_SAT_max"
+rule "r_fragment_aquatic_min <= r_fragment_aquatic_max"
+rule "r_species_min <= r_species_max"
+rule "all r_* values between 0.0 and 1.0"
+end_validation_rules
+
+# Integration with deployment decision:
+# For any node placement in a reach listed in place_ids, the ITEK corridor overrides
+# take precedence over default corridors. The `corridorpresent` check must reference
+# this shard and ensure that the node's corridor set is at least as strict as the ITEK bands.
+# The no_go_flag, if true, blocks deployment entirely.
