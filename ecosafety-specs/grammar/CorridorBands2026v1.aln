@@ -1,0 +1,89 @@
+# CorridorBands2026v1.aln
+# Concrete corridor definitions for normalization and Vt weighting.
+# Referenced by EcoSafetyRiskVector family.
+
+family: CorridorBands
+version: 2.0.0
+description: "Per-coordinate corridor bands and weights for risk normalization"
+
+columns:
+  - varid: "coord_id"
+    coltype: Utf8Id32
+    mandatory: true
+    description: "Reference to varid in EcoSafetyRiskVector (e.g., r_energy)"
+
+  - varid: "safegoldhard"
+    coltype: FloatArray6
+    mandatory: true
+    description: "[safe_low, gold_low, hard_low, hard_high, gold_high, safe_high]"
+
+  - varid: "weight"
+    coltype: Weight01
+    mandatory: true
+    description: "Weight w_j in Lyapunov sum Σ w_j r_j², normalized to sum=1.0"
+
+  - varid: "normkind"
+    coltype: EnumNormKind
+    mandatory: true
+    description: "piecewise_affine | logarithmic | identity"
+
+  - varid: "unit"
+    coltype: Utf8String
+    mandatory: false
+    description: "Physical unit of raw measurement (e.g., 'm³/s', 'mg/L')"
+
+  - varid: "description"
+    coltype: Utf8String
+    mandatory: false
+    description: "Human-readable description of the risk coordinate"
+
+# Example rows for canonical 7-coordinate vector
+rows:
+  - coord_id: "r_energy"
+    safegoldhard: [0.0, 0.15, 0.35, 0.55, 0.85, 1.0]
+    weight: 0.12
+    normkind: "piecewise_affine"
+    unit: "kWh"
+    description: "Energy consumption normalized to basin capacity"
+
+  - coord_id: "r_hydraulic"
+    safegoldhard: [0.0, 0.10, 0.25, 0.40, 0.70, 1.0]
+    weight: 0.18
+    normkind: "piecewise_affine"
+    unit: "m³/s"
+    description: "Hydraulic load relative to flood threshold"
+
+  - coord_id: "r_biology"
+    safegoldhard: [0.0, 0.08, 0.20, 0.35, 0.60, 1.0]
+    weight: 0.20
+    normkind: "piecewise_affine"
+    unit: "mg/L DO"
+    description: "Dissolved oxygen and biodiversity proxy"
+
+  - coord_id: "r_carbon"
+    safegoldhard: [0.0, 0.12, 0.30, 0.50, 0.80, 1.0]
+    weight: 0.15
+    normkind: "piecewise_affine"
+    unit: "kg CO₂e"
+    description: "Carbon intensity / sequestration deficit"
+
+  - coord_id: "r_materials"
+    safegoldhard: [0.0, 0.10, 0.25, 0.45, 0.75, 1.0]
+    weight: 0.15
+    normkind: "piecewise_affine"
+    unit: "toxicity index"
+    description: "Material degradation and leachate toxicity"
+
+  - coord_id: "r_dataquality"
+    safegoldhard: [0.0, 0.05, 0.15, 0.30, 0.60, 1.0]
+    weight: 0.10
+    normkind: "piecewise_affine"
+    unit: "%"
+    description: "Sensor uptime and data completeness"
+
+  - coord_id: "r_sigma"
+    safegoldhard: [0.0, 0.10, 0.25, 0.45, 0.70, 1.0]
+    weight: 0.10
+    normkind: "piecewise_affine"
+    unit: "unitless"
+    description: "Model prediction uncertainty (rsigma)"
