@@ -1,0 +1,42 @@
+schema RenewableEnergyLedger2027v1 {
+    string  rec_id;
+    string  node_id;
+    string  basin_id;
+    datetime window_start_utc;
+    datetime window_end_utc;
+    
+    # Energy flows (kWh)
+    float64 kwh_renewable_generated;
+    float64 kwh_renewable_consumed_purification;
+    float64 kwh_grid_imported;
+    float64 kwh_net_to_grid;  # surplus exported
+    
+    # Carbon accounting
+    float64 scope2_avoided_kgco2e;
+    float32 rcarbonenergy;  # lifecycle intensity coordinate
+    bool    renergytailwind;  # PV surplus flag
+    
+    # Ecosafety gating
+    float32 vt_before;
+    float32 vt_after;
+    float32 delta_vt;
+    string  safestep_decision;  # "ACCEPT", "DERATE", "STOP"
+    
+    # KER and governance
+    float32 k_factor;
+    float32 e_factor;
+    float32 r_factor;
+    string  corridorids;
+    bool    ker_deployable;
+    string  lane;
+    
+    # Credit eligibility and lifecycle
+    bool    credit_eligible;
+    float64 credit_amount_kwh;
+    string  credit_retirement_id;  # null if not retired
+    
+    # Verification
+    string  evidence_hex;
+    string  signing_hex;  # PQ-compatible
+    string  validator_did;
+}
