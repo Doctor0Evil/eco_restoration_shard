@@ -1,0 +1,95 @@
+nanoscript qpudatashards/particles/CyboquaticHydroEcoPhoenix2026v1.aln
+
+# Cyboquatic Hydro-Ecological Node Shard
+# Grammar: ALN-Blockchain EcoNet / Cyboquatics integration
+# All fields RFC-4180-compatible when exported to CSV
+
+schema CyboNodeHydroEcoShardV1 {
+    string  node_id;            # Unique node identifier
+    string  basin_id;           # Basin or corridor ID (e.g., PHX-CAP-West)
+    float64 lat_deg;            # Latitude (WGS84)
+    float64 lon_deg;            # Longitude (WGS84)
+    string  medium;             # "canal", "wetland", "river", "reservoir"
+
+    datetime window_start_utc;  # Aggregation window start
+    datetime window_end_utc;    # Aggregation window end
+
+    # Hydrology
+    float64 q_m3s;              # Mean discharge Q over window
+    float64 depth_m;            # Mean flow depth
+    float64 vel_ms;             # Mean velocity
+    float64 tau_bank_pa;        # Near-bank shear stress
+    float64 sed_conc_mgL;       # Suspended sediment conc.
+    float64 sed_flux_kg;        # Integrated suspended load
+    float64 gw_head_up_m;       # Upgradient groundwater head
+    float64 gw_head_down_m;     # Downgradient groundwater head
+    float64 recharge_m3;        # Estimated recharge volume
+
+    # Water quality (subset of CEIM)
+    float64 c_pfbs_ngL_in;
+    float64 c_pfbs_ngL_out;
+    float64 c_ecoli_cfu100mL_in;
+    float64 c_ecoli_cfu100mL_out;
+    float64 c_tn_mgL_in;
+    float64 c_tn_mgL_out;
+    float64 c_tp_mgL_in;
+    float64 c_tp_mgL_out;
+    float64 temp_c_in;
+    float64 temp_c_out;
+    float64 do_mgL_in;
+    float64 do_mgL_out;
+
+    # eDNA / biodiversity
+    uint32  edna_reads_total;        # Total quality-filtered reads
+    uint32  edna_asv_count;          # Amplicon sequence variants
+    uint16  spp_richness_fish;       # Estimated species richness (fish)
+    uint16  spp_richness_macro;      # Macroinvertebrate richness
+    uint16  spp_richness_microbial;  # Microbial functional groups
+    float32 biodiv_index;           # Composite index (e.g., Shannon/Hill)
+    float32 biodiv_ref;             # Reference index for corridor normalization
+
+    # Risk coordinates (normalized 0–1)
+    float32 r_pfbs;
+    float32 r_ecoli;
+    float32 r_nutrient;
+    float32 r_sat;           # thermal / rSAT
+    float32 r_do;            # dissolved oxygen risk
+    float32 r_sed_excess;    # excess erosion / scouring
+    float32 r_sed_deficit;   # sediment starvation
+    float32 r_recharge;      # unsafe recharge coordinate
+    float32 r_biodiversity;  # rbiodiversity
+    float32 r_trap;          # ecological trap risk
+
+    # Aggregated Lyapunov residual and KER
+    float32 vt;              # Lyapunov residual at window end
+    float32 vt_prev;         # Residual at previous window
+    float32 k_factor;        # Knowledge factor K
+    float32 e_factor;        # Eco-impact factor E
+    float32 r_factor;        # Risk-of-harm R
+
+    # Governance / lanes
+    bool    corridor_present;   # true only if all mandatory r_* defined
+    bool    safestep_ok;        # true if vt <= vt_prev and all r_* < 1
+    bool    ker_deployable;     # production-eligible if true
+    string  lane;               # "EXP", "PROD", "QUAR"
+
+    # Evidence and signatures
+    string  evidence_hex;    # Hash of underlying telemetry / lab reports
+    string  signing_hex;     # DID-linked signature (ALN-Blockchain)
+}
+
+# Example: normalization helper (non-executable placeholder for C++ binding)
+func float32 normalize_coord(float64 value,
+                             float64 band_safe,
+                             float64 band_gold,
+                             float64 band_hard) {
+    # Piecewise-linear 0–1 mapping; implementation lives in C++ kernel
+    return 0.0;
+}
+
+# Example: residual check
+func bool safestep_okay(float32 vt_prev, float32 vt_next,
+                        list<float32> coords) {
+    # Enforce Lyapunov non-increase and r < 1 for all coords
+    return (vt_next <= vt_prev) && all(coords[i] < 1.0);
+}
