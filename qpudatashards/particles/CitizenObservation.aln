@@ -1,0 +1,45 @@
+alnversion 1.0
+schema econet.citizen.observation.v1
+
+# Required columns for any citizen observation shard
+required_columns
+observation_id          string    # Unique identifier (e.g., "obs-YYYY-MM-DD-NNN")
+observer_did            string    # Decentralized identifier of the observer
+lat                     decimal   # Latitude (WGS84, -90 to 90)
+lon                     decimal   # Longitude (WGS84, -180 to 180)
+grid_cell               string    # Coarse grid cell ID (e.g., "PHX-CANAL-12")
+timestamp_utc           datetime  # ISO 8601 UTC timestamp
+observation_type        string    # Type of observation (water_clarity, algal_bloom, odor, wildlife_sighting, temperature_anomaly, ...)
+observed_value          string    # Human‑readable description or measured value
+category_code           string    # Machine‑readable category (e.g., CLARITY_LOW, BLOOM_SURFACE, ODOR_SEWAGE)
+photo_hash              string    # Optional: SHA‑256 hash of an attached photo, or empty string
+quality_score           float     # 0.0–1.0 score assigned by observer or app (confidence)
+trust_scalar            float     # 0.0–1.0 trust weight computed by ingestion kernel
+evidencehex             string    # Hex‑encoded hash of the raw observation data (excluding this field)
+signinghex              string    # Digital signature of the row using observer's DID
+end_required_columns
+
+# Validation rules
+validation_rules
+rule "quality_score between 0.0 and 1.0"
+rule "trust_scalar between 0.0 and 1.0"
+rule "lat between -90.0 and 90.0"
+rule "lon between -180.0 and 180.0"
+rule "observation_type in [water_clarity, algal_bloom, odor, wildlife_sighting, temperature_anomaly, macro_litter]"
+rule "evidencehex matches SHA‑256 of preceding columns"
+end_validation_rules
+
+# Integration with ecosafety grammar
+# Citizen observations contribute to ecoimpact score only through the trust_scalar.
+# The ingestion kernel multiplies ecoimpact_raw by trust_scalar to obtain ecoimpact_adj.
+citizen_trust_scalar_field trust_scalar
+max_ecoimpact_contribution 0.25   # Citizen data cannot account for more than 25% of total ecoimpact.
+
+# Audit fields required for downstream shards
+audit_fields
+observation_id
+observer_did
+trust_scalar
+evidencehex
+signinghex
+end_audit_fields
