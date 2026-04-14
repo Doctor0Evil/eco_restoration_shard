@@ -1,0 +1,177 @@
+# EcoSafetyGrammar2026v1.aln
+# Canonical risk coordinate and residual grammar for Cyboquatic nodes.
+# This file defines the schema families used by procedural macros to generate
+# type-safe Rust/C++/Kotlin bindings.
+
+family: EcoSafetyRiskVector
+version: 2.0.0
+description: "Fixed set of risk coordinates for a Cyboquatic node"
+
+columns:
+  - varid: "r_energy"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.12
+    safegoldhard: [0.0, 0.15, 0.35, 0.55, 0.85, 1.0]
+    normkind: "piecewise_affine"
+    description: "Energy/fuel consumption normalized risk"
+
+  - varid: "r_hydraulic"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.18
+    safegoldhard: [0.0, 0.10, 0.25, 0.40, 0.70, 1.0]
+    normkind: "piecewise_affine"
+    description: "Hydraulic load / flood risk"
+
+  - varid: "r_biology"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.20
+    safegoldhard: [0.0, 0.08, 0.20, 0.35, 0.60, 1.0]
+    normkind: "piecewise_affine"
+    description: "Ecosystem health (DO, biodiversity proxy)"
+
+  - varid: "r_carbon"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.15
+    safegoldhard: [0.0, 0.12, 0.30, 0.50, 0.80, 1.0]
+    normkind: "piecewise_affine"
+    description: "Carbon intensity / sequestration deficit"
+
+  - varid: "r_materials"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.15
+    safegoldhard: [0.0, 0.10, 0.25, 0.45, 0.75, 1.0]
+    normkind: "piecewise_affine"
+    description: "Material degradation / toxicity"
+
+  - varid: "r_dataquality"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.10
+    safegoldhard: [0.0, 0.05, 0.15, 0.30, 0.60, 1.0]
+    normkind: "piecewise_affine"
+    description: "Sensor health / missing data"
+
+  - varid: "r_sigma"
+    coltype: RiskCoord01
+    mandatory: true
+    isriskcoord: true
+    weight: 0.10
+    safegoldhard: [0.0, 0.10, 0.25, 0.45, 0.70, 1.0]
+    normkind: "piecewise_affine"
+    description: "Model uncertainty / residual sigma"
+
+  - varid: "evidencehex"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "SHA-256 hash of canonical serialization of all mutable fields"
+
+  - varid: "signinghex"
+    coltype: Hex64Signature
+    mandatory: false
+    description: "Bostrom DID signature over evidencehex"
+
+  - varid: "timestamp"
+    coltype: UnixMillis
+    mandatory: true
+    description: "Unix epoch milliseconds when measurement was taken"
+
+  - varid: "node_id"
+    coltype: Utf8Id64
+    mandatory: true
+    description: "Globally unique node identifier (Bostrom DID fragment)"
+
+family: CorridorBands
+version: 2.0.0
+description: "Per-coordinate corridor definition for normalization"
+
+columns:
+  - varid: "coord_id"
+    coltype: Utf8Id32
+    mandatory: true
+    description: "Reference to varid in EcoSafetyRiskVector"
+
+  - varid: "safegoldhard"
+    coltype: FloatArray6
+    mandatory: true
+    description: "[safe_low, gold_low, hard_low, hard_high, gold_high, safe_high]"
+
+  - varid: "weight"
+    coltype: Weight01
+    mandatory: true
+    description: "Weight w_j in Lyapunov sum, normalized to sum=1.0 across all coords"
+
+  - varid: "normkind"
+    coltype: EnumNormKind
+    mandatory: true
+    description: "piecewise_affine, logarithmic, or identity"
+
+family: QPUShardV1
+version: 1.0.0
+description: "Base shard structure for all mutable ecosafety data"
+
+columns:
+  - varid: "shard_id"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Unique identifier of this shard row (hash of prior row + this data)"
+
+  - varid: "prev_shard_id"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Hash of previous shard in chain (or genesis zero hash)"
+
+  - varid: "aln_family"
+    coltype: Utf8Id64
+    mandatory: true
+    description: "ALN family this shard instantiates (e.g., EcoSafetyRiskVector)"
+
+  - varid: "aln_version"
+    coltype: SemverString
+    mandatory: true
+    description: "Version of the ALN family used for validation"
+
+  - varid: "lane"
+    coltype: EnumLane
+    mandatory: true
+    description: "Deployment lane: RESEARCH(0), PILOT(1), PROD(2)"
+
+  - varid: "ker_k"
+    coltype: Float01
+    mandatory: true
+    description: "Knowledge factor (reuse of existing grammar)"
+
+  - varid: "ker_e"
+    coltype: Float01
+    mandatory: true
+    description: "Eco-impact factor"
+
+  - varid: "ker_r"
+    coltype: Float01
+    mandatory: true
+    description: "Risk-of-harm residual"
+
+  - varid: "vt"
+    coltype: Float64
+    mandatory: true
+    description: "Lyapunov residual V_t = Σ w_j r_j²"
+
+  - varid: "evidencehex"
+    coltype: Hex64Evidence
+    mandatory: true
+    description: "Hash of this shard's mutable fields (canonical order, exclude self and signinghex)"
+
+  - varid: "signinghex"
+    coltype: Hex64Signature
+    mandatory: false
+    description: "DID signature"
