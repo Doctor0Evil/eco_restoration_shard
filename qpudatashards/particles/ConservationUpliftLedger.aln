@@ -1,0 +1,50 @@
+alnversion 1.0
+schema econet.finance.uplift.v1
+
+# This shard serves as a verifiable ledger for conservation uplift, supporting
+# outcomes‑based green bonds and impact investments. Only PROD lane data with
+# high K/E/R scores and verified_flag = true are eligible for credit.
+
+required_columns
+uplift_id              string    # Unique identifier for this uplift record
+basin_id               string    # Hydrologic basin identifier
+asset_id               string    # Specific asset (e.g., reach ID, MAR cell ID)
+bond_issuance_id       string    # Reference to bond instrument (or empty)
+reporting_period_start datetime  # Start of reporting period
+reporting_period_end   datetime  # End of reporting period
+baseline_period_start  datetime  # Start of baseline period for comparison
+baseline_period_end    datetime  # End of baseline period
+metric_name            string    # Name of metric (e.g., "E. coli load", "Recharge volume")
+metric_unit            string    # Unit of measurement
+baseline_value         float     # Average value during baseline period
+current_value          float     # Average value during reporting period
+absolute_change        float     # current_value - baseline_value
+percent_change         float     # (absolute_change / baseline_value) * 100, or null if baseline=0
+avoided_kg_PFAS        float     # Mass of PFAS avoided (from CEIM kernel)
+avoided_kg_N           float     # Mass of nitrogen avoided
+avoided_kg_P           float     # Mass of phosphorus avoided
+recharge_m3            float     # Volume of water recharged (m³)
+evaporation_avoided_m3 float     # Volume of evaporation avoided (m³)
+rcarbon_avoided        float     # Normalized carbon benefit (0‑1+)
+K                      float     # Knowledge factor for this record (0‑1)
+E                      float     # Eco‑impact score (0‑1)
+R                      float     # Residual risk (0‑1)
+lane                   enum      # RESEARCH, EXP, PROD (only PROD eligible for credit)
+verified_flag          boolean   # Must be true; set by independent verifier
+evidencehex            string    # Hash of supporting data and calculations
+signinghex             string    # Digital signature from verifier or bond issuer
+end_required_columns
+
+validation_rules
+rule "K between 0.0 and 1.0"
+rule "E between 0.0 and 1.0"
+rule "R between 0.0 and 1.0"
+rule "lane == PROD and verified_flag == true for credit eligibility"
+rule "absolute_change == current_value - baseline_value"
+rule "avoided_kg_* >= 0"
+rule "recharge_m3 >= 0"
+end_validation_rules
+
+# Integration: Bond coupons or impact payments are calculated from rows meeting
+# credit eligibility. The governance layer may require K>=0.93, E>=0.90, R<=0.13
+# in addition to the above.
