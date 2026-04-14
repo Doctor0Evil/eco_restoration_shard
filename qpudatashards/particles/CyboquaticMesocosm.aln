@@ -1,0 +1,48 @@
+alnversion 1.0
+schema econet.cyboquatic.mesocosm.v1
+
+# This schema governs experimental mesocosm deployments.
+# All rows must be in RESEARCH or EXP lanes only.
+
+required_columns
+mesocosm_id            string    # Unique mesocosm identifier
+experiment_name        string    # Short descriptive title
+reach_id               string    # Canal reach ID where mesocosm is located
+lat                    decimal   # Latitude (WGS84)
+lon                    decimal   # Longitude (WGS84)
+start_date_utc         datetime  # ISO 8601 UTC start of experiment
+end_date_utc           datetime  # ISO 8601 UTC end of experiment
+flow_regime_lps        float     # Average flow rate in liters per second
+substrate_type         string    # Type of substrate (e.g., sand/gravel, cobble/wood)
+dosing_schedule_id     string    # Identifier for dosing schedule (if any)
+r_biodiversity         float     # Normalized risk for biodiversity (0‑1+)
+r_ARG                  float     # Risk for antibiotic resistance genes
+r_trap                 float     # Ecological trap risk
+r_tox_aquatic          float     # Aquatic toxicity risk
+r_micro                float     # Microplastic risk
+V_aquatic              float     # Lyapunov residual for aquatic compartment
+V_soil                 float     # Lyapunov residual for soil/riparian compartment
+K                      float     # Knowledge factor (0‑1)
+E                      float     # Eco‑impact score (0‑1)
+R                      float     # Residual risk (0‑1)
+lane                   enum      # RESEARCH, EXP, or PROD (PROD prohibited for mesocosm)
+corridor_present_flag  boolean   # True if all required corridors are defined
+deploy_decision        enum      # Continue, Derate, Withdraw
+evidencehex            string    # Hash of raw data
+signinghex             string    # Digital signature
+end_required_columns
+
+validation_rules
+rule "lane in [RESEARCH, EXP]"           # PROD lane forbidden for mesocosms
+rule "K between 0.0 and 1.0"
+rule "E between 0.0 and 1.0"
+rule "R between 0.0 and 1.0"
+rule "V_aquatic <= 0.25"                  # Hard cap on aquatic residual
+rule "V_soil <= 0.20"                     # Hard cap on soil residual
+end_validation_rules
+
+# Promotion gate: only allowed if K>=0.94, E>=0.92, R<=0.13, and all V_i below caps.
+promotion_gate
+condition "K >= 0.94 and E >= 0.92 and R <= 0.13 and V_aquatic <= 0.15 and V_soil <= 0.12"
+target_lane PROD
+end_promotion_gate
