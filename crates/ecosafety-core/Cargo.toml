@@ -1,0 +1,15 @@
+[package]
+name = "ecosafety-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Core ecosafety kernel with five-layer residual engine and corridor grammar"
+
+[features]
+default = ["std"]
+std = []
+
+[dependencies]
+
+[dev-dependencies]
