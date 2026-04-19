@@ -96,7 +96,7 @@ Labeling:
 66. **DQ** – In `eco_shards::response_turn`, is `Vt_before` required to exactly match the `Vt_after` of the previous shard in the sequence? What tolerance is allowed?
 67. **RQ** – Can we implement a "shard‑based code coverage" tool that correlates test coverage with KER improvements, showing which code paths most affect ecosafety?
 68. **OI** – The placeholder script generates ALN files with simple key‑value format; if a coder forgets to upgrade them to full HALN, will CI catch this, or could invalid specs slip through?
-69. **DR** – Define "evidence hex stamp" algorithm more concretely—if it includes spec content and protocol ID, what is the exact serialization and hash function (e.g., BLAKE3)?
+69. **DR** – Define "evidence hex stamp" algorithm more concretely—if it includes spec content and protocol ID, what is the exact serialization and hash function?
 70. **DQ** – How does `oss_vfs` handle file locking? Is there any advisory or mandatory locking to prevent concurrent writes to the same shard file?
 
 71. **RQ** – What is the optimal shard file size distribution for exabyte‑scale storage to balance listing latency and throughput? Should very small shards be coalesced?
