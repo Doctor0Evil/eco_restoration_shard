@@ -1,0 +1,5 @@
+ALNSHARDID=ResponseShardEcoTurn2026v1
+ALNSPECHASH=<hex of schema spec>
+KERCONTEXT=PhoenixEcoSafetySpine2026v1
+EVIDENCEHEX=<Merkle root of backing logs/files>
+userdid,authordid,nodeid,region,topic,lane,twindow_start_utc,twindow_end_utc,knowledge_factor,eco_impact,risk_of_harm,Vt_before,Vt_after,rx_map_json,corridor_update_ids,equation_update_ids,ker_deployable,kertarget_met,promotion_reason,hexstamp

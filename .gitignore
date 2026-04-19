@@ -1,39 +1,36 @@
 ```
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.a
-*.out
 # Dependencies
-.venv/
-venv/
-node_modules/
 target/
-.mypy_cache/
-.pytest_cache/
+
+# Compiled and build artifacts
+**/*.rs.bk
+**/Cargo.lock
+
 # Logs and temp files
 *.log
 *.tmp
 *.swp
+
 # Environment
 .env
 .env.local
 .env.*
+
 # Editors
 .vscode/
 .idea/
-# OS
+
+# OS generated files
 .DS_Store
 Thumbs.db
-# Coverage
+
+# Coverage reports
 coverage/
 htmlcov/
 .coverage
-# Rust specific
-Cargo.lock
+
+# MyPy cache
+.mypy_cache/
+# Pytest cache
+.pytest_cache/
 ```
