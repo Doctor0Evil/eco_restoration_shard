@@ -1,0 +1,33 @@
+# Filename: .github/workflows/eco-ci-validate.yml
+# Destination: .github/workflows/eco-ci-validate.yml
+
+name: ecosafety-ci
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  eco-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build eco-ci-validate
+        run: cargo build -p eco-ci-validate --release
+
+      - name: Run ecosafety validation (no corridor, no build)
+        env:
+          SHARD_ROOT: qpudatashards
+        run: |
+          ./target/release/eco-ci-validate "$SHARD_ROOT" \
+            --min-k 0.90 \
+            --min-e 0.90 \
+            --max-r 0.13
