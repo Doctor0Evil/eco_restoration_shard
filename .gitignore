@@ -1,52 +1,46 @@
 ```
-# Rust/Cargo specific ignores
+# Build artifacts
 target/
-Cargo.lock
-**/Cargo.lock
-**/target/
 
 # Dependencies
-**/node_modules/
-**/.venv/
-**/venv/
-**/__pycache__/
-**/.mypy_cache/
-**/.pytest_cache/
+Cargo.lock
+**/vendor/
 
-# Build artifacts
-**/build/
-**/dist/
-**/out/
-**/*.o
-**/*.obj
-**/*.a
-**/*.lib
-**/*.so
-**/*.dylib
-**/*.dll
-**/*.exe
+# Logs and temp files
+*.log
+*.tmp
 
-# IDE/Editor files
-**/.vscode/
-**/.idea/
-**/*.swp
-**/*.swo
-**/*.tmp
+# Environment
+.env
+.env.local
+*.env.*
 
-# Logs
-**/*.log
-
-# Environment files
-**/.env
-**/.env.local
-**/.env.*
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # Coverage
-**/coverage/
-**/htmlcov/
-**/.coverage
+coverage/
+htmlcov/
+.coverage
 
-# OS files
-**/.DS_Store
-**/Thumbs.db
+# Python specific (if applicable)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+*.whl
+.tox/
+.pytest_cache/
+.mypy_cache/
 ```

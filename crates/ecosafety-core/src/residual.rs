@@ -5,8 +5,6 @@
 //! (hydraulics/FOG, materials, biodiversity, carbon, data quality)
 //! use one frozen grammar (r_j, w_j, V_t).
 
-use core::marker::PhantomData;
-
 /// Stack-allocated residual state with cached per-coordinate contributions.
 /// 
 /// The const generic N represents the number of risk coordinates
@@ -130,7 +128,7 @@ impl<const N: usize> Default for ResidualState<N> {
 }
 
 /// Result of a safe step check.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum SafeStepResult {
     /// Step is safe: all r_j <= 1 and V_{t+1} <= V_t (within tolerance).
     Ok,
@@ -141,7 +139,7 @@ pub enum SafeStepResult {
 }
 
 /// Error types for residual operations.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ResidualError {
     /// Risk coordinate out of [0,1] range.
     RiskCoordOutOfBounds { index: usize, value: f64 },
@@ -281,7 +279,7 @@ mod tests {
     fn test_residual_state_new() {
         let state: ResidualState<5> = ResidualState::new();
         assert_eq!(state.vt(), 0.0);
-        assert!(state.allcoords_bounded());
+        assert!(state.all_coords_bounded());
         assert!(state.vt_non_negative());
     }
 
