@@ -1,0 +1,31 @@
+schema ResponseShardEco2026v1 {
+  fields {
+    shard_id        : string;
+    author_did      : string;
+    topic           : string;
+    timestamp_utc   : datetime;
+    k               : f64;
+    e               : f64;
+    r               : f64;
+    vt_before       : f64;
+    vt_after        : f64;
+    corridor_ids    : list[string];
+    evidence_hex    : hex[64];
+    lane            : enum{SIM, EXP, PROD, ARCHIVE};
+  }
+
+  constraints {
+    assert(k >= 0.0 && k <= 1.0);
+    assert(e >= 0.0 && e <= 1.0);
+    assert(r >= 0.0 && r <= 1.0);
+    assert(vt_before >= 0.0);
+    assert(vt_after >= 0.0);
+
+    if lane == "PROD" {
+      assert(k >= 0.90);
+      assert(e >= 0.90);
+      assert(r <= 0.13);
+      assert(vt_after <= vt_before);
+    }
+  }
+}

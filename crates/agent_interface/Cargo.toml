@@ -1,0 +1,16 @@
+[package]
+name = "agent_interface"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Constrained action vocabulary for AI‑Chat and coding agents on top of oss_vfs."
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+cyboquatic-ecosafety-core.workspace = true
+oss_vfs.workspace = true
+response_shard_core.workspace = true

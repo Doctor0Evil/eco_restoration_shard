@@ -1,0 +1,7 @@
+shard_id,author_did,topic,timestamp_utc,k,e,r,vt_before,vt_after,corridor_ids,evidence_hex,lane
+eco_restoration_shard:ecosafety_doc_2026v1:did:bostrom:stack:1745097600000000000,did:bostrom:stack,eco_restoration_shard:ecosafety_doc_2026v1,2026-01-19T20:00:00+00:00,0.94,0.90,0.13,0.5,0.48,ecosafety_core|cyboquatic_fog_routing|econet_materials,abc123def456789,SIM
+oss_vfs_crate_init:did:bostrom:stack:1745097600000000001,did:bostrom:stack,oss_vfs:crate_init,2026-01-19T20:01:00+00:00,0.94,0.90,0.13,0.48,0.46,oss_vfs|agent_interface,def456abc789012,SIM
+response_shard_core_init:did:bostrom:stack:1745097600000000002,did:bostrom:stack,response_shard_core:crate_init,2026-01-19T20:02:00+00:00,0.94,0.90,0.12,0.46,0.44,response_shard_core|ker_spine,789abc012def345,SIM
+agent_interface_init:did:bostrom:stack:1745097600000000003,did:bostrom:stack,agent_interface:crate_init,2026-01-19T20:03:00+00:00,0.93,0.90,0.13,0.44,0.42,agent_interface|oss_vfs,012def345abc678,SIM
+storage_shards_init:did:bostrom:stack:1745097600000000004,did:bostrom:stack,storage_shards:crate_init,2026-01-19T20:04:00+00:00,0.94,0.91,0.12,0.42,0.40,storage_shards|compute_nodes,345abc678def901,SIM
+build_scheduler_init:did:bostrom:stack:1745097600000000005,did:bostrom:stack,build_scheduler:crate_init,2026-01-19T20:05:00+00:00,0.93,0.90,0.13,0.40,0.38,build_scheduler|storage_shards,678def901abc234,SIM
