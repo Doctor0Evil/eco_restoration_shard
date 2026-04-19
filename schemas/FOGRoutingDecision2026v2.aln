@@ -1,0 +1,40 @@
+schema FOGRoutingDecision2026v2 {
+  fields {
+    routing_id      : u128;
+    ts_utc          : datetime;
+    source_node_id  : string;
+    dest_node_id    : string;
+    variant_id      : u64;
+
+    decision        : enum{ACCEPT, REJECT, REROUTE};
+
+    // Predicate flags
+    pass_tailwind   : bool;
+    pass_bio        : bool;
+    pass_hydraulic  : bool;
+    pass_lyapunov   : bool;
+
+    // Residuals and KER
+    vt_before       : f64;
+    vt_after        : f64;
+    k_window        : f64;
+    e_window        : f64;
+    r_window        : f64;
+
+    // Carbon + biodiversity deltas
+    d_carbon        : f64;
+    d_biodiversity  : f64;
+
+    // Provenance and governance
+    lane            : enum{RESEARCH, EXP, PROD};
+    evidence_hex    : hex[64];
+    author_did      : string;
+  }
+
+  constraints {
+    if decision == "ACCEPT" {
+      assert(pass_tailwind && pass_bio && pass_hydraulic && pass_lyapunov);
+      assert(vt_after <= vt_before);
+    }
+  }
+}
