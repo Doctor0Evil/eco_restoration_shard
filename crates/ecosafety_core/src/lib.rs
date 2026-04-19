@@ -7,8 +7,10 @@ pub mod corridor;
 pub mod residual;
 pub mod ker;
 pub mod invariants;
+pub mod safestep;
 
-pub use corridor::CorridorBands;
-pub use residual::Residual;
+pub use corridor::{CorridorBands, CorridorBandsBuilder, CorridorBandsIncomplete, CorridorBandsComplete};
+pub use residual::{Residual, ResidualState};
 pub use ker::KerTriad;
 pub use invariants::{corridor_present, safestep, ker_deployable};
+pub use safestep::{SafeStepKernel, SafeStepResult, SafeStepError};

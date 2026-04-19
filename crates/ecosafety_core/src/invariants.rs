@@ -1,9 +1,10 @@
 //! Invariants module - enforces corridor presence, safestep, and KER deployability
 
 use std::collections::HashMap;
-use crate::corridor::CorridorBands;
+use crate::corridor::CorridorBandsComplete;
 use crate::residual::Residual;
 use crate::ker::KerTriad;
+use crate::safestep::{SafeStepResult, SafeStepKernel};
 
 /// CorridorDecision represents the decision from a safestep check.
 #[derive(Debug, Clone, PartialEq)]
@@ -16,11 +17,21 @@ pub enum CorridorDecision {
     Stop,
 }
 
-/// Check that all required corridor variables are present in the bands map.
+impl From<SafeStepResult> for CorridorDecision {
+    fn from(result: SafeStepResult) -> Self {
+        match result {
+            SafeStepResult::Ok => CorridorDecision::Ok,
+            SafeStepResult::Derate => CorridorDecision::Derate,
+            SafeStepResult::Stop => CorridorDecision::Stop,
+        }
+    }
+}
+
+/// Check that all required corridor variables are present in the bands slice.
 /// 
 /// Returns true if all required varids exist in bands.
-pub fn corridor_present(required: &[String], bands: &HashMap<String, CorridorBands>) -> bool {
-    required.iter().all(|varid| bands.contains_key(varid))
+pub fn corridor_present(required: &[String], bands: &[CorridorBandsComplete]) -> bool {
+    required.iter().all(|varid| bands.iter().any(|b| b.varid == *varid))
 }
 
 /// Enforce V_{t+1} ≤ V_t and r_j < 1 outside a safe interior.
@@ -30,10 +41,12 @@ pub fn corridor_present(required: &[String], bands: &HashMap<String, CorridorBan
 /// - `CorridorDecision::Derate` if V_next slightly exceeds V_prev but is recoverable.
 /// - `CorridorDecision::Stop` if any coord violates hard limits or V_next >> V_prev.
 pub fn safestep(prev: &Residual, next: &Residual) -> CorridorDecision {
+    let kernel = SafeStepKernel::default();
+    
     // Check if V_t increased
     let delta_v = next.vt - prev.vt;
 
-    if delta_v <= 0.0 {
+    if delta_v <= kernel.vt_tolerance {
         // V_t decreased or stayed same - good
         // Check if any coordinate is at hard violation (1.0)
         let any_hard_violation = next.coords.iter().any(|(_, r)| *r >= 1.0);
@@ -42,7 +55,7 @@ pub fn safestep(prev: &Residual, next: &Residual) -> CorridorDecision {
         } else {
             CorridorDecision::Ok
         }
-    } else if delta_v < 0.1 {
+    } else if delta_v < kernel.derate_threshold {
         // Small increase in V_t - allow with derating
         CorridorDecision::Derate
     } else {
@@ -64,15 +77,16 @@ mod tests {
 
     #[test]
     fn test_corridor_present_all() {
-        let mut bands = HashMap::new();
-        bands.insert("rtox".to_string(), CorridorBands {
-            varid: "rtox".to_string(),
-            units: "normalized".to_string(),
-            safe: 0.3, gold: 0.6, hard: 0.9,
-            weight: 1.0, lyap_channel: "toxicity".to_string(),
-            mandatory: true,
-        });
-
+        let bands = vec![
+            CorridorBandsComplete::new_legacy(
+                "rtox".to_string(),
+                "normalized".to_string(),
+                0.3, 0.6, 0.9,
+                1.0,
+                "toxicity".to_string(),
+                true,
+            )
+        ];
         let required = vec!["rtox".to_string()];
         assert!(corridor_present(&required, &bands));
     }

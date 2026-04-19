@@ -1,0 +1,7 @@
+[package]
+name = "cyboquatic_c_kernel"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
