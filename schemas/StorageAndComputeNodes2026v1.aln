@@ -1,0 +1,95 @@
+schema StorageNodeShard2026v1 {
+  fields {
+    // Identity
+    node_id           : string;
+    rack_id           : string;
+    region            : string;
+    lat               : f64;
+    lon               : f64;
+    t_window_start    : datetime;
+    t_window_end      : datetime;
+
+    // Raw metrics
+    capacity_bytes    : u64;
+    used_bytes        : u64;
+    iops              : u64;
+    power_w           : f64;
+    temp_c            : f64;
+    device_count      : u32;
+
+    // Normalized risk coordinates
+    r_energy          : f64;
+    r_materials       : f64;
+    r_heat            : f64;
+    r_sigma           : f64;
+
+    // Governance
+    vt                : f64;
+    k_score           : f64;
+    e_score           : f64;
+    r_score           : f64;
+    lane              : enum{SIM, EXP, PROD, ARCHIVE};
+    evidence_hex      : hex[64];
+  }
+
+  constraints {
+    assert(used_bytes <= capacity_bytes);
+    assert(r_energy >= 0.0 && r_energy <= 1.0);
+    assert(r_materials >= 0.0 && r_materials <= 1.0);
+    assert(r_heat >= 0.0 && r_heat <= 1.0);
+    assert(r_sigma >= 0.0 && r_sigma <= 1.0);
+    assert(vt >= 0.0);
+    assert(k_score >= 0.0 && k_score <= 1.0);
+    assert(e_score >= 0.0 && e_score <= 1.0);
+    assert(r_score >= 0.0 && r_score <= 1.0);
+
+    if lane == "PROD" {
+      assert(r_score <= 0.13);
+    }
+  }
+}
+
+schema ComputeNodeShard2026v1 {
+  fields {
+    // Identity
+    node_id           : string;
+    region            : string;
+    t_window_start    : datetime;
+    t_window_end      : datetime;
+
+    // Raw metrics
+    cpu_util          : f64;
+    mem_gb            : u64;
+    power_w           : f64;
+    rf_power_density  : f64;
+    duty_cycle        : f64;
+
+    // Normalized risks
+    r_energy          : f64;
+    r_rf              : f64;
+    r_heat            : f64;
+    r_sigma           : f64;
+
+    // Governance
+    vt                : f64;
+    k_score           : f64;
+    e_score           : f64;
+    r_score           : f64;
+    lane              : enum{SIM, EXP, PROD, ARCHIVE};
+    evidence_hex      : hex[64];
+  }
+
+  constraints {
+    assert(cpu_util >= 0.0 && cpu_util <= 1.0);
+    assert(duty_cycle >= 0.0 && duty_cycle <= 1.0);
+    assert(r_energy >= 0.0 && r_energy <= 1.0);
+    assert(r_rf >= 0.0 && r_rf <= 1.0);
+    assert(r_heat >= 0.0 && r_heat <= 1.0);
+    assert(r_sigma >= 0.0 && r_sigma <= 1.0);
+    assert(vt >= 0.0);
+
+    if lane == "PROD" {
+      assert(r_score <= 0.13);
+    }
+  }
+}
