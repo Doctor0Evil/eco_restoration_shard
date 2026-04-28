@@ -1,6 +1,3 @@
-TITLE qpudatashardsDataTrustAndPlanesPhoenix2026v1.md
-DESTINATION qpudatashards/
-
 # qpudatashards data‑trust and extended‑plane structuring (Phoenix 2026v1)
 
 This document captures the qpudatashard‑visible structuring changes for data‑trust planes (rcalib, rsigma) and the extended ecological planes (rcarbon, rtox, rbiodiversity), in the grammar of the existing rx–Vt–KER spine.
