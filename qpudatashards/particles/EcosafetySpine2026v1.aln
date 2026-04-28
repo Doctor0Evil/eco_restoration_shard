@@ -1,0 +1,32 @@
+alnversion 1.0
+schema ecosafety.spine.contract.v1
+
+particle ecosafety.spine.contract.v1
+  field spec_id        string
+  field spec_hex       string
+  field bostrom_primary string
+  field bostrom_alt    string
+  field core_crate     string
+  field plane_crate    string
+  field corridors_schema string
+  field riskvector_schema string
+  field ker_invariant  string
+  field lane_research  string
+  field lane_pilot     string
+  field lane_prod      string
+  field proof_hex      string
+end
+
+ECOSAFETYSPINE-2026v1,
+0x8d2f3ac971b540de3c19a4e7f6c0b5a2,
+"bostrom18sd2ujv24ual9c9pshtxys6j8knh6xaead9ye7",
+"bostrom1ldgmtf20d6604a24ztr0jxht7xt7az4jhkmsrc",
+"cyboquatic-ecosafety-core v2.0.0",
+"cyboquatic-planes v1.0.0",
+"ecosafety.corridors.v2",
+"ecosafety.riskvector.v2",
+"invariant.kerdeployable.v2.0.0",
+"RESEARCH:K>=0.85,E>=0.85,R<=0.20",
+"PILOT:K>=0.90,E>=0.90,R<=0.15",
+"PROD:K>=0.94,E>=0.91,R<=0.13",
+"0xa1b2c3d4e5f67890f1e2d3c4b5a69788"
