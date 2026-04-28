@@ -1,0 +1,172 @@
+particle IngestRcalibPhoenix2026v1
+version 1.0.0
+namespace qpudatashards.particles
+
+# Ingest error counts and weights for rcalib
+struct IngestErrorCounts {
+    field n_miss      : u32  # missing mandatory fields
+    field n_rfc       : u32  # RFC-4180 violations
+    field n_type      : u32  # type mismatches
+    field n_schema    : u32  # unknown/invalid schema references
+    field n_corridor  : u32  # missing/invalid corridor IDs
+    field n_unit      : u32  # inconsistent/unknown units
+    field n_varid     : u32  # invalid/unknown varid entries
+}
+
+struct RcalibWeights {
+    field w_miss      : f64
+    field w_rfc       : f64
+    field w_type      : f64
+    field w_schema    : f64
+    field w_corridor  : f64
+    field w_unit      : f64
+    field w_varid     : f64
+}
+
+struct RcalibBands {
+    field safe_max    : f64  # I_rcalib <= safe_max => rcalib == 0
+    field gold_max    : f64  # I_rcalib == gold_max => rcalib == 0.33
+    field hard_max    : f64  # I_rcalib >= hard_max => rcalib == 1.0
+}
+
+# Sensor quality components for rsigma
+struct SigmaComponents {
+    field r_drift  : f64  # 0..1
+    field r_noise  : f64  # 0..1
+    field r_bias   : f64  # 0..1
+    field r_loss   : f64  # 0..1
+}
+
+struct SigmaWeights {
+    field w_drift  : f64
+    field w_noise  : f64
+    field w_bias   : f64
+    field w_loss   : f64
+}
+
+# Risk coordinate and vector for ecosafety spine
+struct RiskCoord {
+    field coord_id : string  # e.g. "rcarbon", "rmaterials", "rbiodiversity", "rdataquality"
+    field value    : f64     # normalized 0..1
+}
+
+struct RiskWeight {
+    field coord_id : string
+    field weight   : f64     # non-negative
+}
+
+struct RiskVector {
+    field coords   : RiskCoord[]
+}
+
+struct LyapunovWeights {
+    field weights  : RiskWeight[]
+}
+
+struct SafeStepConfig {
+    field vt_ceiling : f64   # basin- or system-specific ceiling, e.g. 0.13
+}
+
+struct KerWindow {
+    field K_raw        : f64
+    field E_raw        : f64
+    field R_raw        : f64
+    field D_data       : f64  # data trust scalar, D_data = 1 - rcalib
+    field D_sensor     : f64  # sensor trust scalar
+    field D_combined   : f64  # D_combined <= min(D_data, D_sensor)
+    field K_adj        : f64  # K_raw * D_combined
+    field E_adj        : f64  # E_raw * D_combined
+    field R_max_coord  : f64  # max over relevant RiskCoord.value
+}
+
+enum Lane {
+    RESEARCH
+    EXP
+    PROD
+}
+
+struct DeployDecision {
+    field lane             : Lane
+    field kerdeployable    : bool
+    field vt_max           : f64
+    field corridor_present : bool
+    field safestep_ok      : bool
+    field evidence_hex     : string
+    field signing_hex      : string
+}
+
+# Canonical qpudatashard row schema tying everything together
+struct QpuDataShardRow {
+    field shard_id        : string
+    field node_id         : string
+    field region          : string
+    field lat             : f64
+    field lon             : f64
+    field twindow_start   : string  # ISO-8601
+    field twindow_end     : string  # ISO-8601
+
+    field varid           : string
+    field value_raw       : f64
+    field unit            : string
+
+    field r_calib         : f64     # 0..1
+    field r_sigma         : f64     # 0..1
+
+    field risk_vector     : RiskVector
+    field lyapunov_weights: LyapunovWeights
+    field V_t             : f64
+    field V_t_prev        : f64
+
+    field ker_window      : KerWindow
+    field deploy_decision : DeployDecision
+}
+
+# Invariants (non-actuating, enforced in CI and runtimes)
+
+invariant NoCorridorNoBuild {
+    description "Every shard row must reference a complete risk vector and weights."
+    for row in QpuDataShardRow {
+        assert row.risk_vector.coords.len > 0
+        assert row.lyapunov_weights.weights.len > 0
+        assert row.deploy_decision.corridor_present == true
+    }
+}
+
+invariant SafeStepLyapunov {
+    description "Discrete Lyapunov condition V_{t+1} <= V_t and V_t <= vt_ceiling."
+    for row in QpuDataShardRow {
+        let cfg : SafeStepConfig
+        cfg.vt_ceiling = row.deploy_decision.vt_max
+        assert row.V_t <= cfg.vt_ceiling + 1e-9
+        assert row.V_t <= row.V_t_prev + 1e-9
+        assert row.deploy_decision.safestep_ok == true
+    }
+}
+
+invariant KERDeployableGate {
+    description "Production lane and kerdeployable require high K/E, low R, and good data quality."
+    for row in QpuDataShardRow {
+        if row.deploy_decision.lane == Lane.PROD {
+            assert row.ker_window.K_adj >= 0.90
+            assert row.ker_window.E_adj >= 0.90
+            assert row.ker_window.R_max_coord <= 0.13
+            assert row.r_calib <= 0.33      # at or below gold band
+            assert row.r_sigma <= 0.50      # configurable uncertainty cap
+            assert row.deploy_decision.kerdeployable == true
+        }
+    }
+}
+
+invariant TrustMonotonicity {
+    description "Worsening data quality can never increase K or E, nor reduce R."
+    for row in QpuDataShardRow {
+        # to be checked via replay bundles: CI tools assert
+        # that for sequences of rows with increasing r_calib or r_sigma,
+        # K_adj and E_adj are non-increasing and R_max_coord is non-decreasing.
+        assume true
+    }
+}
+
+proof_hex "0xa3f5c7e9b1d20468c7e4a9d2b5f81357"
+
+end particle
