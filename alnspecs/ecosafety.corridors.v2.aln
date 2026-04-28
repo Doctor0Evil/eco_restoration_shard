@@ -1,0 +1,28 @@
+# File: alnspecs/ecosafety.corridors.v2.aln
+
+alnversion 1.0
+schema ecosafety.corridors.v2
+
+particle corridors.ecosafety.v2
+  field varid       string
+  field safe        f64
+  field gold        f64
+  field hard        f64
+  field weight      f64
+  field lyapchannel string
+  field mandatory   bool
+end
+
+# Carbon net intensity corridor (kg CO2e/kWh).
+CARBON.NETINTENSITY, -0.30, -0.05, 0.05, 0.20, "carbon", true
+
+# Biodiversity planes (dimensionless indices).
+BIODIV.CONNECTIVITY,      0.60, 0.80, 1.00, 0.10, "biodiversity", true
+BIODIV.STRUCTCOMPLEX,     1.40, 1.70, 2.00, 0.10, "biodiversity", true
+BIODIV.COLONIZATION,      0.50, 0.75, 1.00, 0.10, "biodiversity", true
+
+# Materials plane (decomposition).
+MATERIAL.T90DAYS,         60.0, 90.0, 180.0, 0.20, "materials", true
+
+# Hydraulics surcharge plane (HLR dimensionless).
+HYDRAULICS.HLR,           0.70, 0.90, 1.20, 0.15, "hydraulics", true
